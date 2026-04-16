@@ -1,0 +1,1113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>AmalGus — Smart Glass Discovery</title>
+<meta name="description" content="AI-powered glass marketplace. Describe your project and get instant product recommendations from 40+ verified glass items."/>
+
+<!-- Fonts: Inter -->
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+
+<!-- Lucide icons via CDN -->
+<script src="https://cdn.jsdelivr.net/npm/lucide@latest/dist/umd/lucide.min.js"></script>
+
+<style>
+/* ── TOKENS ── */
+:root {
+  --ink:       #111210;
+  --ink-2:     #383633;
+  --ink-3:     #6b6864;
+  --ink-4:     #a4a19d;
+  --bg:        #f9f8f5;
+  --bg-2:      #f1efe9;
+  --bg-3:      #e7e4dc;
+  --white:     #ffffff;
+  --blue:      #1c52c4;
+  --blue-dark: #163fa8;
+  --blue-lt:   #edf2fd;
+  --blue-bd:   #bad0f9;
+  --green:     #15683a;
+  --green-lt:  #edfaf3;
+  --green-bd:  #8adcb0;
+  --amber:     #8f5e10;
+  --amber-lt:  #fdf8ec;
+  --amber-bd:  #f2d07a;
+  --red:       #c43030;
+  --bd:        rgba(17,18,16,.07);
+  --bd-2:      rgba(17,18,16,.13);
+  --shadow-sm: 0 1px 2px rgba(0,0,0,.05);
+  --shadow-md: 0 4px 16px rgba(0,0,0,.07);
+  --shadow-lg: 0 16px 48px rgba(0,0,0,.11);
+  --font:      'Inter', system-ui, -apple-system, sans-serif;
+  --ease:      cubic-bezier(.4,0,.2,1);
+  --r-sm: 8px;
+  --r-md: 12px;
+  --r-lg: 18px;
+  --r-xl: 22px;
+}
+
+/* ── RESET ── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: var(--font);
+  background: var(--bg);
+  color: var(--ink);
+  -webkit-font-smoothing: antialiased;
+  min-height: 100vh;
+  line-height: 1.5;
+  display: flex;
+  flex-direction: column;
+}
+button { cursor: pointer; font-family: var(--font); }
+
+/* ── NAV ── */
+.nav {
+  height: 56px;
+  background: rgba(249,248,245,.88);
+  backdrop-filter: blur(18px) saturate(1.6);
+  border-bottom: 1px solid var(--bd);
+  position: sticky; top: 0; z-index: 100;
+  display: flex; align-items: center;
+  padding: 0 28px; gap: 14px;
+  flex-shrink: 0;
+}
+.nav-logo { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+.nav-logomark {
+  width: 30px; height: 30px;
+  background: var(--ink);
+  border-radius: 7px;
+  display: grid; place-items: center;
+}
+.nav-logomark svg { width: 16px; height: 16px; stroke: white; stroke-width: 2.2; }
+.nav-brand {
+  font-size: 18px; font-weight: 600;
+  letter-spacing: -.2px; color: var(--ink);
+}
+.nav-brand em { color: var(--blue); font-style: normal; font-weight: 700; }
+.nav-divider { width: 1px; height: 16px; background: var(--bd-2); }
+.nav-tag { font-size: 12px; color: var(--ink-3); font-weight: 400; letter-spacing: .1px; }
+.nav-right { margin-left: auto; display: flex; align-items: center; gap: 4px; }
+.nav-link {
+  font-size: 13px; font-weight: 500; color: var(--ink-3);
+  text-decoration: none; padding: 7px 12px;
+  border-radius: var(--r-sm); transition: color .15s, background .15s;
+  display: flex; align-items: center; gap: 6px;
+}
+.nav-link:hover { color: var(--ink); background: var(--bg-2); }
+.nav-link.active { color: var(--blue); background: var(--blue-lt); }
+.nav-link svg { width: 15px; height: 15px; }
+
+/* ── CHAT CONTAINER ── */
+.chat-wrap {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  max-width: 820px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 0 20px;
+  position: relative;
+}
+
+/* ── WELCOME / EMPTY STATE ── */
+.welcome {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px 120px;
+  text-align: center;
+  transition: opacity .3s, transform .3s;
+}
+.welcome.hidden { display: none; }
+
+.welcome-icon {
+  width: 64px; height: 64px;
+  background: var(--blue-lt);
+  border: 1px solid var(--blue-bd);
+  border-radius: 16px;
+  display: grid; place-items: center;
+  margin-bottom: 24px;
+}
+.welcome-icon svg { width: 28px; height: 28px; stroke: var(--blue); }
+
+.welcome h1 {
+  font-size: 28px; font-weight: 700;
+  letter-spacing: -.5px;
+  margin-bottom: 8px; color: var(--ink);
+}
+.welcome p {
+  font-size: 15px; color: var(--ink-3);
+  line-height: 1.7; max-width: 460px;
+  margin-bottom: 36px; font-weight: 400;
+}
+
+.welcome-stats {
+  display: flex; gap: 0;
+  border: 1px solid var(--bd-2);
+  border-radius: var(--r-lg);
+  background: var(--white);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+  margin-bottom: 36px;
+}
+.w-stat {
+  padding: 14px 22px; text-align: center;
+  border-right: 1px solid var(--bd);
+}
+.w-stat:last-child { border-right: none; }
+.w-stat-n { font-size: 20px; font-weight: 700; letter-spacing: -.4px; color: var(--ink); margin-bottom: 1px; }
+.w-stat-l { font-size: 11px; color: var(--ink-4); font-weight: 400; }
+
+/* ── MVP FEATURES ── */
+.mvp-features {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  max-width: 640px; width: 100%;
+  margin-bottom: 40px;
+}
+.mvp-card {
+  background: var(--white);
+  border: 1px solid var(--bd);
+  border-radius: var(--r-md);
+  padding: 18px 16px;
+  text-align: center;
+  transition: all .2s var(--ease);
+}
+.mvp-card:hover {
+  border-color: var(--blue-bd);
+  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
+}
+.mvp-icon {
+  width: 40px; height: 40px;
+  border-radius: 10px;
+  display: grid; place-items: center;
+  margin: 0 auto 10px;
+}
+.mvp-icon svg { width: 20px; height: 20px; }
+.mvp-icon.blue { background: var(--blue-lt); }
+.mvp-icon.blue svg { stroke: var(--blue); }
+.mvp-icon.green { background: var(--green-lt); }
+.mvp-icon.green svg { stroke: var(--green); }
+.mvp-icon.amber { background: var(--amber-lt); }
+.mvp-icon.amber svg { stroke: var(--amber); }
+.mvp-icon.purple { background: #f3f0ff; }
+.mvp-icon.purple svg { stroke: #6d28d9; }
+.mvp-num {
+  font-size: 20px; font-weight: 700;
+  letter-spacing: -.5px;
+  color: var(--ink);
+  margin-bottom: 2px;
+}
+.mvp-label {
+  font-size: 11px; color: var(--ink-4);
+  font-weight: 500; line-height: 1.3;
+}
+
+.examples-label {
+  font-size: 11px; font-weight: 600; color: var(--ink-4);
+  text-transform: uppercase; letter-spacing: .8px;
+  margin-bottom: 12px;
+}
+
+.examples-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  max-width: 560px; width: 100%;
+}
+.ex-btn {
+  display: flex; align-items: flex-start; gap: 10px;
+  padding: 14px 16px;
+  border: 1px solid var(--bd-2);
+  border-radius: var(--r-md);
+  background: var(--white);
+  text-align: left;
+  font-size: 13px; font-weight: 400;
+  color: var(--ink-2); line-height: 1.5;
+  transition: all .15s var(--ease);
+}
+.ex-btn svg { width: 16px; height: 16px; flex-shrink: 0; margin-top: 1px; stroke: var(--ink-4); }
+.ex-btn:hover {
+  border-color: var(--blue);
+  background: var(--blue-lt);
+  color: var(--ink);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-sm);
+}
+.ex-btn:hover svg { stroke: var(--blue); }
+
+/* ── RESULTS AREA ── */
+.results-area {
+  flex: 1;
+  padding: 24px 0 140px;
+  display: none;
+  flex-direction: column;
+  gap: 20px;
+}
+.results-area.visible {
+  display: flex;
+}
+
+/* User query bubble */
+.user-bubble {
+  align-self: flex-end;
+  max-width: 70%;
+  background: var(--blue);
+  color: white;
+  padding: 12px 18px;
+  border-radius: 18px 18px 4px 18px;
+  font-size: 14px; font-weight: 400;
+  line-height: 1.6;
+  box-shadow: var(--shadow-sm);
+}
+
+/* AI response area */
+.ai-response {
+  display: flex; gap: 14px;
+  align-items: flex-start;
+}
+.ai-avatar {
+  width: 36px; height: 36px;
+  background: var(--ink);
+  border-radius: 10px;
+  display: grid; place-items: center;
+  flex-shrink: 0;
+}
+.ai-avatar svg { width: 18px; height: 18px; stroke: white; }
+.ai-body { flex: 1; min-width: 0; }
+.ai-label {
+  font-size: 13px; font-weight: 600; color: var(--ink);
+  margin-bottom: 12px;
+  display: flex; align-items: center; gap: 6px;
+}
+.ai-label span { font-size: 12px; color: var(--ink-4); font-weight: 400; }
+
+.ai-text {
+  font-size: 14px; color: var(--ink-2);
+  line-height: 1.7; margin-bottom: 16px;
+  font-weight: 400;
+}
+
+/* Loading dots */
+.typing-dots {
+  display: flex; align-items: center; gap: 5px;
+  padding: 8px 0;
+}
+.typing-dots span {
+  width: 8px; height: 8px;
+  background: var(--ink-4);
+  border-radius: 50%;
+  animation: bounce 1.4s infinite ease-in-out;
+}
+.typing-dots span:nth-child(1) { animation-delay: 0s; }
+.typing-dots span:nth-child(2) { animation-delay: .15s; }
+.typing-dots span:nth-child(3) { animation-delay: .3s; }
+@keyframes bounce {
+  0%, 80%, 100% { transform: scale(0.6); opacity: .4; }
+  40% { transform: scale(1); opacity: 1; }
+}
+
+/* ── PRODUCT CARDS ── */
+.pc {
+  background: var(--white);
+  border: 1.5px solid var(--bd);
+  border-radius: var(--r-xl);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+  transition: all .2s var(--ease);
+}
+.pc:hover { border-color: var(--bd-2); box-shadow: var(--shadow-md); transform: translateY(-1px); }
+.pc.rank-1 { border-color: var(--blue); }
+
+.pc-strip { height: 3px; }
+.rank-1 .pc-strip { background: linear-gradient(90deg, #1c52c4, #60a5fa); }
+.rank-2 .pc-strip { background: linear-gradient(90deg, #5b21b6, #a78bfa); }
+.rank-3 .pc-strip { background: linear-gradient(90deg, #0f6e56, #34d399); }
+
+.best-tag {
+  display: inline-flex; align-items: center; gap: 5px;
+  background: var(--blue); color: white;
+  font-size: 10px; font-weight: 700;
+  letter-spacing: .7px; text-transform: uppercase;
+  padding: 4px 10px; border-radius: 99px;
+  position: absolute; top: 13px; right: 16px;
+}
+.best-tag svg { width: 11px; height: 11px; }
+
+.pc-body { padding: 20px 22px 0; display: flex; gap: 16px; position: relative; }
+.pc-left { flex: 1; min-width: 0; }
+.pc-right { flex-shrink: 0; display: flex; flex-direction: column; align-items: center; gap: 5px; }
+
+.pc-category {
+  display: flex; align-items: center; gap: 5px;
+  font-size: 11px; font-weight: 600;
+  color: var(--blue);
+  text-transform: uppercase; letter-spacing: .6px;
+  margin-bottom: 5px;
+}
+.pc-category svg { width: 12px; height: 12px; }
+
+.pc-name {
+  font-size: 18px; font-weight: 600;
+  letter-spacing: -.2px; line-height: 1.2;
+  margin-bottom: 5px;
+}
+.pc-supplier {
+  display: flex; align-items: center; gap: 5px;
+  font-size: 12px; color: var(--ink-3); font-weight: 400;
+  margin-bottom: 13px;
+}
+.pc-supplier svg { width: 12px; height: 12px; flex-shrink: 0; }
+
+.pc-specs { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 12px; }
+.spec-chip {
+  display: flex; align-items: center; gap: 4px;
+  background: var(--bg-2); border: 1px solid var(--bd);
+  border-radius: 6px; padding: 3px 8px;
+  font-size: 12px; color: var(--ink-3); font-weight: 400;
+}
+.spec-chip svg { width: 11px; height: 11px; }
+
+.pc-desc {
+  font-size: 13px; color: var(--ink-2);
+  line-height: 1.7; font-weight: 400;
+}
+
+/* Score ring */
+.score-wrap { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+.score-ring { position: relative; width: 66px; height: 66px; }
+.score-ring svg { transform: rotate(-90deg); }
+.sr-track { fill: none; stroke: var(--bg-3); stroke-width: 5; stroke-linecap: round; }
+.sr-fill { fill: none; stroke-width: 5; stroke-linecap: round;
+  stroke-dasharray: 163.36; stroke-dashoffset: 163.36;
+  transition: stroke-dashoffset 1.2s cubic-bezier(.22,1,.36,1) .15s; }
+.rank-1 .sr-fill { stroke: var(--blue); }
+.rank-2 .sr-fill { stroke: #7c3aed; }
+.rank-3 .sr-fill { stroke: #0f766e; }
+.sr-label {
+  position: absolute; inset: 0; display: grid; place-items: center;
+  font-size: 15px; font-weight: 600; letter-spacing: -1px; color: var(--ink);
+}
+.score-sublabel { font-size: 10.5px; color: var(--ink-4); font-weight: 400; text-align: center; line-height: 1.3; }
+
+/* AI explanation */
+.pc-ai {
+  margin: 16px 22px 0;
+  background: var(--green-lt);
+  border: 1px solid var(--green-bd);
+  border-radius: var(--r-md);
+  padding: 14px 16px;
+}
+.pc-ai-header {
+  display: flex; align-items: center; gap: 7px;
+  margin-bottom: 9px;
+}
+.pc-ai-header svg { width: 14px; height: 14px; stroke: var(--green); }
+.pc-ai-label { font-size: 11px; font-weight: 700; color: var(--green); text-transform: uppercase; letter-spacing: .5px; }
+.pc-ai-why { font-size: 13px; color: #144d2b; line-height: 1.7; margin-bottom: 11px; font-weight: 400; }
+.pc-ai-benefits { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
+.ai-benefit {
+  display: flex; align-items: center; gap: 5px;
+  background: var(--white); border: 1px solid var(--green-bd);
+  border-radius: 6px; padding: 4px 10px;
+  font-size: 12px; font-weight: 500; color: var(--green);
+}
+.ai-benefit svg { width: 12px; height: 12px; }
+.pc-ai-note {
+  display: flex; align-items: flex-start; gap: 6px;
+  font-size: 12px; color: #1a6641; font-style: italic; line-height: 1.55;
+}
+.pc-ai-note svg { width: 13px; height: 13px; flex-shrink: 0; margin-top: 1px; }
+
+/* Card footer */
+.pc-footer {
+  border-top: 1px solid var(--bd);
+  padding: 15px 22px; margin-top: 16px;
+  display: flex; align-items: center; justify-content: space-between;
+  flex-wrap: wrap; gap: 12px;
+}
+.pc-price { font-size: 20px; font-weight: 700; letter-spacing: -.5px; }
+.pc-price span { font-size: 13px; color: var(--ink-3); font-weight: 400; }
+.pc-meta { display: flex; align-items: center; gap: 12px; margin-top: 3px; flex-wrap: wrap; }
+.pc-meta-item {
+  display: flex; align-items: center; gap: 4px;
+  font-size: 11.5px; color: var(--ink-4); font-weight: 400;
+}
+.pc-meta-item svg { width: 11px; height: 11px; }
+.pc-actions { display: flex; gap: 8px; }
+
+.btn-enquire {
+  display: flex; align-items: center; gap: 6px;
+  background: var(--blue); color: white; border: none;
+  border-radius: var(--r-sm); padding: 9px 18px;
+  font-size: 13px; font-weight: 600;
+  transition: background .15s;
+}
+.btn-enquire svg { width: 14px; height: 14px; }
+.btn-enquire:hover { background: var(--blue-dark); }
+
+.btn-save {
+  display: flex; align-items: center; gap: 6px;
+  background: var(--white); color: var(--ink-2);
+  border: 1.5px solid var(--bd-2); border-radius: var(--r-sm);
+  padding: 8px 14px; font-size: 13px; font-weight: 500;
+  transition: all .15s;
+}
+.btn-save svg { width: 14px; height: 14px; }
+.btn-save:hover { border-color: var(--ink); color: var(--ink); }
+.btn-save.saved { background: var(--green-lt); color: var(--green); border-color: var(--green-bd); }
+
+/* ── BOTTOM SEARCH BAR ── */
+.search-dock {
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  z-index: 50;
+  padding: 0 20px 20px;
+  background: linear-gradient(transparent, var(--bg) 40%);
+  pointer-events: none;
+}
+.search-bar-wrap {
+  max-width: 780px;
+  margin: 0 auto;
+  pointer-events: all;
+}
+.search-bar {
+  display: flex; align-items: flex-end; gap: 10px;
+  background: var(--white);
+  border: 1.5px solid var(--bd-2);
+  border-radius: 20px;
+  padding: 10px 10px 10px 20px;
+  box-shadow: 0 -2px 24px rgba(0,0,0,.08), var(--shadow-md);
+  transition: border-color .2s, box-shadow .2s;
+}
+.search-bar:focus-within {
+  border-color: var(--blue);
+  box-shadow: 0 -2px 24px rgba(28,82,196,.1), 0 0 0 4px rgba(28,82,196,.06);
+}
+
+.search-input {
+  flex: 1;
+  border: none; outline: none;
+  font-size: 15px; font-family: var(--font);
+  color: var(--ink); background: transparent;
+  padding: 6px 0;
+  resize: none;
+  max-height: 120px;
+  line-height: 1.5;
+}
+.search-input::placeholder { color: var(--ink-4); font-weight: 400; }
+
+.filter-toggles {
+  display: flex; gap: 6px; align-items: center;
+  flex-shrink: 0;
+}
+.filter-chip {
+  display: flex; align-items: center; gap: 4px;
+  background: var(--bg-2);
+  border: 1px solid var(--bd);
+  border-radius: 99px;
+  padding: 6px 12px;
+  font-size: 12px; font-weight: 500;
+  color: var(--ink-3);
+  transition: all .15s;
+}
+.filter-chip:hover { border-color: var(--blue); color: var(--blue); background: var(--blue-lt); }
+.filter-chip svg { width: 12px; height: 12px; }
+.filter-chip select {
+  border: none; background: transparent;
+  font-size: 12px; font-family: var(--font);
+  color: inherit; font-weight: 500;
+  outline: none; cursor: pointer;
+  -webkit-appearance: none;
+  padding-right: 2px;
+}
+
+.btn-send {
+  width: 42px; height: 42px;
+  border-radius: 14px;
+  background: var(--ink);
+  color: white; border: none;
+  display: grid; place-items: center;
+  transition: all .2s var(--ease);
+  flex-shrink: 0;
+}
+.btn-send svg { width: 18px; height: 18px; }
+.btn-send:hover { background: #0d0d0b; transform: scale(1.04); }
+.btn-send:disabled { opacity: .3; cursor: not-allowed; transform: none; }
+
+/* ── STATUS PILL ── */
+.status-pill {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 5px 12px; border-radius: 99px;
+  font-size: 11px; font-weight: 600;
+  letter-spacing: .2px;
+  transition: all .3s;
+}
+.status-pill svg { width: 12px; height: 12px; }
+.status-pill.ready { background: var(--green-lt); border: 1px solid var(--green-bd); color: var(--green); }
+.status-pill.loading { background: var(--amber-lt); border: 1px solid var(--amber-bd); color: var(--amber); }
+
+/* ── ENQUIRY MODAL ── */
+.overlay {
+  position: fixed; inset: 0; z-index: 200;
+  background: rgba(17,18,16,.44);
+  backdrop-filter: blur(5px);
+  display: none; place-items: center; padding: 22px;
+}
+.overlay.open { display: grid; }
+.modal {
+  background: var(--white);
+  border-radius: 22px;
+  padding: 34px; max-width: 420px; width: 100%;
+  box-shadow: var(--shadow-lg);
+  animation: pop .22s cubic-bezier(.34,1.56,.64,1);
+}
+@keyframes pop { from { opacity:0; transform:scale(.94) translateY(10px); } }
+
+.modal-title { font-size: 20px; font-weight: 700; letter-spacing: -.2px; margin-bottom: 4px; }
+.modal-sub { font-size: 13px; color: var(--ink-3); margin-bottom: 20px; font-weight: 400; }
+.modal-product {
+  display: flex; align-items: center; gap: 10px;
+  padding: 12px 14px;
+  background: var(--blue-lt); border: 1px solid var(--blue-bd);
+  border-radius: var(--r-md); margin-bottom: 20px;
+}
+.modal-product svg { width: 18px; height: 18px; stroke: var(--blue); flex-shrink: 0; }
+.modal-product-name { font-size: 13px; font-weight: 600; margin-bottom: 2px; }
+.modal-product-meta { font-size: 12px; color: var(--blue); }
+
+.mfield { margin-bottom: 13px; }
+.mfield label {
+  display: block; font-size: 11px; font-weight: 600;
+  color: var(--ink-3); text-transform: uppercase; letter-spacing: .5px;
+  margin-bottom: 6px;
+}
+.mfield input, .mfield textarea {
+  width: 100%; border: 1.5px solid var(--bd-2); border-radius: var(--r-sm);
+  padding: 10px 13px; font-size: 14px; font-family: var(--font); font-weight: 400;
+  color: var(--ink); background: var(--white);
+  transition: border-color .15s;
+}
+.mfield input:focus, .mfield textarea:focus {
+  outline: none; border-color: var(--blue);
+  box-shadow: 0 0 0 3px rgba(28,82,196,.09);
+}
+.mfield-row { display: flex; gap: 11px; }
+.mfield-row .mfield { flex: 1; }
+.modal-actions { display: flex; gap: 9px; margin-top: 20px; }
+.mbtn-submit {
+  flex: 1; background: var(--ink); color: white;
+  border: none; border-radius: var(--r-sm);
+  padding: 13px; font-size: 14px; font-weight: 600;
+  display: flex; align-items: center; justify-content: center; gap: 6px;
+  transition: background .15s;
+}
+.mbtn-submit svg { width: 15px; height: 15px; }
+.mbtn-submit:hover { background: #0d0d0b; }
+.mbtn-cancel {
+  background: white; color: var(--ink-2);
+  border: 1.5px solid var(--bd-2); border-radius: var(--r-sm);
+  padding: 12px 18px; font-size: 14px; font-weight: 500;
+  transition: all .15s;
+}
+.mbtn-cancel:hover { border-color: var(--ink); }
+
+.modal-success { text-align: center; padding: 12px 0 6px; }
+.success-icon {
+  width: 60px; height: 60px;
+  background: var(--green-lt); border: 1px solid var(--green-bd);
+  border-radius: 50%; display: grid; place-items: center;
+  margin: 0 auto 16px;
+}
+.success-icon svg { width: 26px; height: 26px; stroke: var(--green); }
+.modal-success h3 { font-size: 20px; font-weight: 700; margin-bottom: 8px; }
+.modal-success p { font-size: 14px; color: var(--ink-3); line-height: 1.7; font-weight: 400; }
+
+/* ── FOOTER ── */
+.chat-footer-text {
+  text-align: center;
+  font-size: 11px; color: var(--ink-4);
+  padding: 4px 0 0;
+  font-weight: 400;
+}
+
+/* ── RESPONSIVE ── */
+@media (max-width: 640px) {
+  .nav { padding: 0 14px; }
+  .nav-tag, .nav-divider { display: none; }
+  .examples-grid { grid-template-columns: 1fr; }
+  .welcome h1 { font-size: 22px; }
+  .mvp-features { grid-template-columns: repeat(2, 1fr); }
+  .welcome { padding: 24px 12px 120px; }
+  .search-dock { padding: 0 12px 12px; }
+  .pc-body { padding: 16px 16px 0; gap: 12px; flex-direction: column; }
+  .pc-ai { margin: 14px 16px 0; }
+  .pc-name { font-size: 16px; }
+  .pc-footer { padding: 12px 16px; }
+  .filter-toggles { display: none; }
+  .w-stat { padding: 10px 14px; }
+  .w-stat-n { font-size: 16px; }
+}
+
+/* ── SCROLLBAR ── */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--bd-2); border-radius: 3px; }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="nav">
+  <a class="nav-logo" href="/">
+    <div class="nav-logomark">
+      <svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round">
+        <polygon points="12 2 2 7 12 12 22 7"/>
+        <polyline points="2 17 12 22 22 17"/>
+        <polyline points="2 12 12 17 22 12"/>
+      </svg>
+    </div>
+    <span class="nav-brand">Amal<em>Gus</em></span>
+  </a>
+  <div class="nav-divider"></div>
+  <span class="nav-tag">Glass & Allied Products Marketplace</span>
+  <div class="nav-right">
+    <a class="nav-link active" href="/">
+      <i data-lucide="message-square"></i>
+      Search
+    </a>
+    <a class="nav-link" href="/products.html">
+      <i data-lucide="grid-3x3"></i>
+      Products
+    </a>
+    <div id="statusPill" class="status-pill loading">
+      <i data-lucide="loader" id="statusIcon"></i>
+      <span id="statusText">Connecting...</span>
+    </div>
+  </div>
+</nav>
+
+<!-- CHAT AREA -->
+<div class="chat-wrap">
+
+  <!-- Welcome state -->
+  <div class="welcome" id="welcome">
+
+    <!-- What we do -->
+    <div style="margin-bottom:32px;max-width:520px">
+      <h1 style="font-size:32px;font-weight:700;letter-spacing:-.6px;margin-bottom:8px;color:var(--ink)">
+        Find the right glass, instantly.
+      </h1>
+      <p style="font-size:15px;color:var(--ink-3);line-height:1.7;font-weight:400;margin:0">
+        Describe your project in plain language — our AI searches 40+ verified glass products using vector matching and tells you exactly why each one fits your needs.
+      </p>
+    </div>
+
+    <!-- MVP Features -->
+    <div class="mvp-features">
+      <div class="mvp-card">
+        <div class="mvp-icon blue"><i data-lucide="sparkles"></i></div>
+        <div class="mvp-num">AI Search</div>
+        <div class="mvp-label">Describe in plain language</div>
+      </div>
+      <div class="mvp-card">
+        <div class="mvp-icon green"><i data-lucide="shield-check"></i></div>
+        <div class="mvp-num">40+</div>
+        <div class="mvp-label">Verified products</div>
+      </div>
+      <div class="mvp-card">
+        <div class="mvp-icon purple"><i data-lucide="target"></i></div>
+        <div class="mvp-num">TF-IDF</div>
+        <div class="mvp-label">Vector matching</div>
+      </div>
+      <div class="mvp-card">
+        <div class="mvp-icon amber"><i data-lucide="message-square-text"></i></div>
+        <div class="mvp-num">Claude</div>
+        <div class="mvp-label">AI explanations</div>
+      </div>
+    </div>
+
+    <div class="examples-label">Try an example</div>
+    <div class="examples-grid" id="exGrid"></div>
+  </div>
+
+  <!-- Results area (scrollable conversation) -->
+  <div class="results-area" id="resultsArea"></div>
+
+</div>
+
+<!-- BOTTOM SEARCH BAR -->
+<div class="search-dock">
+  <div class="search-bar-wrap">
+    <div class="search-bar">
+      <textarea class="search-input" id="qInput" rows="1"
+        placeholder="Describe your glass requirement..."
+        onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();doSearch();}"></textarea>
+      <div class="filter-toggles">
+        <div class="filter-chip">
+          <i data-lucide="layers" style="width:12px;height:12px"></i>
+          <select id="fCat"><option value="">All categories</option></select>
+        </div>
+        <div class="filter-chip">
+          <i data-lucide="indian-rupee" style="width:12px;height:12px"></i>
+          <select id="fPrice">
+            <option value="">Any budget</option>
+            <option value="400">Under 400</option>
+            <option value="800">Under 800</option>
+            <option value="1500">Under 1,500</option>
+            <option value="3000">Under 3,000</option>
+            <option value="6000">Under 6,000</option>
+          </select>
+        </div>
+      </div>
+      <button class="btn-send" id="searchBtn" onclick="doSearch()">
+        <i data-lucide="arrow-up"></i>
+      </button>
+    </div>
+    <div class="chat-footer-text">AmalGus uses TF-IDF vector search + Claude AI to find your best glass match</div>
+  </div>
+</div>
+
+<!-- ENQUIRY MODAL -->
+<div class="overlay" id="overlay">
+  <div class="modal" id="modalBox">
+    <div id="modalBody"></div>
+  </div>
+</div>
+
+<script>
+const API = 'http://localhost:3001/api';
+let lastQuery = '';
+
+const EXAMPLES = [
+  { icon: 'building-2',  text: '6mm tempered glass for office cabin partitions, clear, polished edges, IS 2553 certified' },
+  { icon: 'home',        text: 'Budget-friendly 4mm float glass for residential windows, large quantity needed' },
+  { icon: 'leaf',        text: 'Insulated glass unit for energy-efficient building, Low-E coating, 5+12+5 config' },
+  { icon: 'droplets',    text: '8mm toughened shower glass with nano easy-clean coating, frameless enclosure' },
+  { icon: 'shield',      text: 'Laminated safety glass for balcony railing, high wind zone, 8-10mm, UV protected' },
+  { icon: 'volume-x',    text: 'Acoustic soundproof laminated glass for office near busy road, STC rated' },
+];
+
+// ── INIT ──
+addEventListener('DOMContentLoaded', () => {
+  lucide.createIcons();
+  buildExamples();
+  fetchCategories();
+  pollStatus();
+  autoResize(document.getElementById('qInput'));
+});
+
+function autoResize(el) {
+  el.addEventListener('input', () => {
+    el.style.height = 'auto';
+    el.style.height = Math.min(el.scrollHeight, 120) + 'px';
+  });
+}
+
+function buildExamples() {
+  const el = document.getElementById('exGrid');
+  EXAMPLES.forEach(e => {
+    const b = document.createElement('button');
+    b.className = 'ex-btn';
+    b.innerHTML = `<i data-lucide="${e.icon}"></i><span>${e.text}</span>`;
+    b.onclick = () => {
+      document.getElementById('qInput').value = e.text;
+      doSearch();
+    };
+    el.appendChild(b);
+  });
+  lucide.createIcons();
+}
+
+async function fetchCategories() {
+  try {
+    const cats = await (await fetch(`${API}/categories`)).json();
+    const sel = document.getElementById('fCat');
+    cats.forEach(c => {
+      const o = document.createElement('option'); o.value = c; o.textContent = c; sel.appendChild(o);
+    });
+  } catch {}
+}
+
+async function pollStatus() {
+  const pill = document.getElementById('statusPill');
+  const txt  = document.getElementById('statusText');
+  const icon = document.getElementById('statusIcon');
+  const check = async () => {
+    try {
+      const d = await (await fetch(`${API}/status`)).json();
+      if (d.ready) {
+        pill.className = 'status-pill ready';
+        icon.setAttribute('data-lucide','circle-check');
+        txt.textContent = `${d.productCount} products ready`;
+        lucide.createIcons();
+        return;
+      }
+    } catch {}
+    pill.className = 'status-pill loading';
+    setTimeout(check, 2500);
+  };
+  check();
+}
+
+// ── SEARCH ──
+async function doSearch() {
+  const query = document.getElementById('qInput').value.trim();
+  if (!query) return;
+  lastQuery = query;
+
+  const btn = document.getElementById('searchBtn');
+  btn.disabled = true;
+
+  // Hide welcome, show results
+  document.getElementById('welcome').classList.add('hidden');
+  const area = document.getElementById('resultsArea');
+  area.classList.add('visible');
+
+  // Add user bubble
+  area.innerHTML += `<div class="user-bubble">${h(query)}</div>`;
+
+  // Add AI typing indicator
+  const typingId = 'typing-' + Date.now();
+  area.innerHTML += `
+    <div class="ai-response" id="${typingId}">
+      <div class="ai-avatar">
+        <svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke="currentColor" stroke-width="2">
+          <polygon points="12 2 2 7 12 12 22 7"/>
+          <polyline points="2 17 12 22 22 17"/>
+          <polyline points="2 12 12 17 22 12"/>
+        </svg>
+      </div>
+      <div class="ai-body">
+        <div class="ai-label">AmalGus AI</div>
+        <div class="typing-dots"><span></span><span></span><span></span></div>
+      </div>
+    </div>`;
+  area.scrollTop = area.scrollHeight;
+
+  // Clear input
+  document.getElementById('qInput').value = '';
+  document.getElementById('qInput').style.height = 'auto';
+
+  try {
+    const res = await fetch(`${API}/search`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        query, topK: 3,
+        filters: {
+          category:  document.getElementById('fCat').value,
+          maxPrice:  document.getElementById('fPrice').value,
+        }
+      })
+    });
+    if (!res.ok) { const e = await res.json(); throw new Error(e.error || 'Search failed'); }
+    const data = await res.json();
+    renderResults(data.results, query, typingId);
+  } catch (err) {
+    const el = document.getElementById(typingId);
+    if (el) {
+      el.querySelector('.ai-body').innerHTML = `
+        <div class="ai-label">AmalGus AI</div>
+        <div class="ai-text" style="color:var(--red)">
+          <i data-lucide="wifi-off" style="width:14px;height:14px;display:inline;vertical-align:-2px"></i>
+          ${h(err.message)}. Make sure the backend is running: <code style="font-size:12px;background:var(--bg-2);padding:2px 6px;border-radius:4px">node server.js</code>
+        </div>`;
+      lucide.createIcons();
+    }
+  }
+
+  btn.disabled = false;
+}
+
+// ── RENDER RESULTS ──
+function renderResults(results, query, typingId) {
+  const el = document.getElementById(typingId);
+  if (!el) return;
+
+  if (!results || !results.length) {
+    el.querySelector('.ai-body').innerHTML = `
+      <div class="ai-label">AmalGus AI</div>
+      <div class="ai-text">I couldn't find any products matching your requirement. Try rephrasing or adjusting the filters.</div>`;
+    return;
+  }
+
+  let cardsHTML = results.map((p, i) => cardHTML(p, i)).join('');
+
+  el.querySelector('.ai-body').innerHTML = `
+    <div class="ai-label">AmalGus AI <span>found ${results.length} matches</span></div>
+    <div class="ai-text">Here are the top ${results.length} products that best match your requirement for "${h(query)}":</div>
+    <div style="display:flex;flex-direction:column;gap:14px">${cardsHTML}</div>`;
+
+  lucide.createIcons();
+
+  // Animate score rings
+  setTimeout(() => {
+    results.forEach(p => {
+      const ring = document.getElementById(`rf-${p.id}`);
+      if (ring) ring.style.strokeDashoffset = 163.36 - (163.36 * p.matchScore / 100);
+    });
+  }, 80);
+
+  const area = document.getElementById('resultsArea');
+  area.scrollTop = area.scrollHeight;
+}
+
+function cardHTML(p, rank) {
+  const rc   = `rank-${rank + 1}`;
+  const ex   = p.explanation || {};
+  const specs = [
+    p.thickness ? `${p.thickness}mm` : null,
+    p.color, p.edge, p.certification
+  ].filter(Boolean);
+  const benefits = (ex.keyBenefits || []).slice(0, 3);
+  const specIconList = ['ruler','palette','scissors','shield-check'];
+
+  return `
+  <div class="pc ${rc}">
+    <div class="pc-strip"></div>
+    <div class="pc-body">
+      ${rank === 0 ? `<div class="best-tag"><i data-lucide="star" style="width:11px;height:11px"></i> Best Match</div>` : ''}
+      <div class="pc-left">
+        <div class="pc-category">
+          <i data-lucide="layers" style="width:12px;height:12px"></i>
+          ${h(p.category)}
+        </div>
+        <div class="pc-name">${h(p.name)}</div>
+        <div class="pc-supplier">
+          <i data-lucide="map-pin" style="width:12px;height:12px"></i>
+          ${h(p.supplier)} &middot; ${h(p.location)}
+        </div>
+        <div class="pc-specs">
+          ${specs.map((s, si) => `
+            <span class="spec-chip">
+              <i data-lucide="${specIconList[si] || 'tag'}" style="width:11px;height:11px"></i>
+              ${h(s)}
+            </span>`).join('')}
+        </div>
+        <div class="pc-desc">${h(p.description || '')}</div>
+      </div>
+      <div class="pc-right">
+        <div class="score-wrap">
+          <div class="score-ring">
+            <svg width="66" height="66" viewBox="0 0 66 66">
+              <circle class="sr-track" cx="33" cy="33" r="26"/>
+              <circle class="sr-fill" id="rf-${p.id}" cx="33" cy="33" r="26"/>
+            </svg>
+            <div class="sr-label">${p.matchScore}%</div>
+          </div>
+          <div class="score-sublabel">Match<br>score</div>
+        </div>
+      </div>
+    </div>
+
+    ${ex.whyThisGlass ? `
+    <div class="pc-ai">
+      <div class="pc-ai-header">
+        <i data-lucide="sparkles"></i>
+        <span class="pc-ai-label">Why this glass is right for you</span>
+      </div>
+      <div class="pc-ai-why">${h(ex.whyThisGlass)}</div>
+      ${benefits.length ? `
+      <div class="pc-ai-benefits">
+        ${benefits.map(b => `
+          <span class="ai-benefit">
+            <i data-lucide="check" style="width:12px;height:12px"></i>
+            ${h(b)}
+          </span>`).join('')}
+      </div>` : ''}
+      ${ex.considerations ? `
+      <div class="pc-ai-note">
+        <i data-lucide="info"></i>
+        ${h(ex.considerations)}
+      </div>` : ''}
+    </div>` : ''}
+
+    <div class="pc-footer">
+      <div class="pc-price-block">
+        <div class="pc-price">${'\u20B9'}${(+p.price).toLocaleString('en-IN')} <span>${h(p.priceUnit)}</span></div>
+        <div class="pc-meta">
+          ${p.minOrder  ? `<span class="pc-meta-item"><i data-lucide="package"></i> Min: ${h(p.minOrder)}</span>` : ''}
+          ${p.leadTime  ? `<span class="pc-meta-item"><i data-lucide="clock"></i> ${h(p.leadTime)}</span>` : ''}
+        </div>
+      </div>
+      <div class="pc-actions">
+        <button class="btn-save" id="save-${p.id}" onclick="onSave(${p.id})">
+          <i data-lucide="bookmark"></i> Save
+        </button>
+        <button class="btn-enquire" onclick="openModal(${p.id},'${ea(p.name)}',${p.price},'${ea(p.priceUnit)}','${ea(p.supplier)}')">
+          Enquire
+          <i data-lucide="arrow-right"></i>
+        </button>
+      </div>
+    </div>
+  </div>`;
+}
+
+// ── MODAL ──
+function openModal(id, name, price, unit, supplier) {
+  document.getElementById('modalBody').innerHTML = `
+    <div class="modal-title">Send enquiry</div>
+    <p class="modal-sub">The supplier will respond within 24 hours with pricing and availability.</p>
+    <div class="modal-product">
+      <i data-lucide="layers" style="width:18px;height:18px;stroke:var(--blue)"></i>
+      <div>
+        <div class="modal-product-name">${h(name)}</div>
+        <div class="modal-product-meta">${'\u20B9'}${(+price).toLocaleString('en-IN')} ${h(unit)} &middot; ${h(supplier)}</div>
+      </div>
+    </div>
+    <div class="mfield-row">
+      <div class="mfield"><label>Your name</label><input placeholder="Rajesh Kumar"/></div>
+      <div class="mfield"><label>Company / Project</label><input placeholder="ABC Constructions"/></div>
+    </div>
+    <div class="mfield"><label>Phone / WhatsApp</label><input type="tel" placeholder="+91 98765 43210"/></div>
+    <div class="mfield"><label>Quantity needed</label><input placeholder="e.g. 200 sqm or 50 panels"/></div>
+    <div class="mfield"><label>Notes</label><textarea rows="2" placeholder="Size requirements, delivery city...">${h(lastQuery)}</textarea></div>
+    <div class="modal-actions">
+      <button class="mbtn-cancel" onclick="closeModal()">Cancel</button>
+      <button class="mbtn-submit" onclick="submitModal()">
+        <i data-lucide="send"></i> Send enquiry
+      </button>
+    </div>`;
+  document.getElementById('overlay').classList.add('open');
+  lucide.createIcons();
+}
+
+function submitModal() {
+  document.getElementById('modalBody').innerHTML = `
+    <div class="modal-success">
+      <div class="success-icon"><i data-lucide="check"></i></div>
+      <h3>Enquiry sent!</h3>
+      <p>Your enquiry has been forwarded to the supplier.<br>Expect a response within 24 hours.</p>
+      <button class="btn-enquire" style="margin-top:22px;padding:10px 26px" onclick="closeModal()">
+        Done <i data-lucide="arrow-right"></i>
+      </button>
+    </div>`;
+  lucide.createIcons();
+}
+
+function closeModal() { document.getElementById('overlay').classList.remove('open'); }
+document.getElementById('overlay').addEventListener('click', e => { if (e.target === e.currentTarget) closeModal(); });
+
+function onSave(id) {
+  const btn = document.getElementById(`save-${id}`);
+  if (!btn) return;
+  btn.classList.add('saved');
+  btn.innerHTML = `<i data-lucide="bookmark-check"></i> Saved`;
+  lucide.createIcons();
+}
+
+// ── UTILS ──
+function h(s)  { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function ea(s) { return String(s||'').replace(/'/g,"\\'").replace(/\n/g,' '); }
+</script>
+</body>
+</html>
