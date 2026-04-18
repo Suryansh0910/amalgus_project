@@ -23,6 +23,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     initRouter();
     initThicknessLab();
     loadCart();
+    // Render fallback data immediately so catalog is never empty
+    renderCatalog('All');
     // Start data fetches
     fetchProducts();
     fetchRates();
@@ -623,7 +625,8 @@ function updateCartIcon() {
 }
 
 function addToCart(productId, btnEl) {
-    const product = state.products.find(p => p.id == productId);
+    const source = state.products.length ? state.products : STATIC_PRODUCTS;
+    const product = source.find(p => p.id == productId);
     if (!product) return;
     
     // Extract Dimensional Geometry (if available)
