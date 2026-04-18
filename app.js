@@ -135,6 +135,7 @@ function createProductCard(product) {
                 <div class="product-footer" style="padding-top: 1.25rem; border-top: 1px solid var(--border-light); margin-top: auto; display: flex; flex-direction:column; gap: 1rem;">
                     <div style="display:flex; justify-content:space-between; align-items:center;">
                         <div class="product-price" style="font-size: 1.5rem; font-weight: 700; color: var(--text-main);">₹${Number(product.price).toLocaleString('en-IN')} <span style="font-size:0.85rem; color:var(--text-muted); font-weight:400;">/${product.priceUnit||'sqm'}</span></div>
+                        <button class="btn btn-outline" style="padding: 0.4rem 0.8rem; font-size: 0.85rem; border-radius: var(--radius-sm); border: 1px solid var(--border-light); background: transparent; cursor: pointer; display: flex; align-items: center;" onclick="openVendorCompare('${product.id}')"><i data-lucide="git-compare" style="width:14px; margin-right:4px;"></i> Compare Vendors</button>
                     </div>
                     <div style="display:flex; align-items:center; background: var(--bg-surface); padding: 0.5rem; border-radius: var(--radius-lg); border: 1px solid var(--border-light); box-shadow: inset 0 2px 4px rgba(0,0,0,0.02)">
                         <div style="display:flex; flex-direction:column; align-items:center; flex:1; padding: 0 0.25rem;">
@@ -152,6 +153,121 @@ function createProductCard(product) {
             </div>
         </div>
     `;
+}
+
+function openVendorCompare(productId) {
+    const source = state.products.length ? state.products : STATIC_PRODUCTS;
+    const product = source.find(p => p.id == productId);
+    if (!product) return;
+    
+    // Create mock vendors based on base price
+    const basePrice = Number(product.price) || 150;
+    const vendors = [
+        { name: product.supplier || 'Premium Glass Consortium', price: basePrice, time: '3-4 Days', rating: 4.8, reviews: 124, type: 'Factory Direct', badge: 'Best Value' },
+        { name: 'Apex Regional Glass', price: Math.round(basePrice * 0.95), time: '5-7 Days', rating: 4.5, reviews: 89, type: 'Wholesaler', badge: '' },
+        { name: 'Express Structural Solutions', price: Math.round(basePrice * 1.08), time: '1-2 Days', rating: 4.9, reviews: 210, type: 'Premium Supplier', badge: 'Fastest Delivery' }
+    ];
+    
+    // Sort by price ascending
+    vendors.sort((a,b) => a.price - b.price);
+
+    // Build modal
+    let modalHTML = `
+    <div id="vendorModal" style="position:fixed; inset:0; z-index:9999; display:flex; align-items:center; justify-content:center; padding:1rem;">
+        <div style="position:absolute; inset:0; background:rgba(15,23,42,0.6); backdrop-filter:blur(4px);" onclick="closeVendorCompare()"></div>
+        <div style="position:relative; width:100%; max-width:800px; background:var(--bg-surface); border-radius:var(--radius-lg); box-shadow:var(--shadow-lg); border:1px solid var(--border-light); display:flex; flex-direction:column; max-height:90vh; animation: fadeUp 0.3s ease;">
+            
+            <div style="padding: 1.5rem 2rem; border-bottom: 1px solid var(--border-light); display:flex; justify-content:space-between; align-items:center; background: var(--bg-alt); border-radius: var(--radius-lg) var(--radius-lg) 0 0;">
+                <div>
+                    <h2 style="font-size: 1.5rem; color: var(--accent-dark); margin-bottom: 0.25rem;"><i data-lucide="git-compare" style="width:20px; display:inline; vertical-align:middle; margin-right:8px;"></i> Compare Vendors</h2>
+                    <p style="color: var(--text-muted); font-size: 0.95rem;">${product.name} ${product.thickness ? ' ('+product.thickness+'mm)' : ''}</p>
+                </div>
+                <button onclick="closeVendorCompare()" style="background:transparent; border:none; cursor:pointer; color:var(--text-muted); padding:0.5rem; display:flex; align-items:center; justify-content:center;"><i data-lucide="x" style="width:24px; height:24px;"></i></button>
+            </div>
+            
+            <div style="padding: 2rem; overflow-y:auto; display:flex; flex-direction:column; gap:1rem;">
+                ${vendors.map(v => `
+                <div style="display:flex; border:1px solid var(--border-light); border-radius:var(--radius-md); padding:1.5rem; background:white; position:relative; gap:1.5rem; align-items:center; transition: transform 0.2s; box-shadow:var(--shadow-sm);">
+                    ${v.badge ? `<div style="position:absolute; top:-0.75rem; left:1.5rem; background:${v.badge==='Fastest Delivery'?'#f59e0b':'#10b981'}; color:white; font-size:0.7rem; font-weight:700; text-transform:uppercase; letter-spacing:0.05em; padding:0.25rem 0.75rem; border-radius:var(--radius-pill); box-shadow:0 2px 4px rgba(0,0,0,0.1);">${v.badge}</div>` : ''}
+                    
+                    <div style="flex:1;">
+                        <h4 style="font-size: 1.25rem; font-weight:700; color:var(--accent-dark); margin-bottom:0.25rem;">${v.name} <span style="font-size:0.75rem; font-weight:600; color:var(--text-muted); background:var(--bg-alt); padding:0.2rem 0.5rem; border-radius:4px; margin-left:0.5rem; border:1px solid var(--border-light); vertical-align:middle;">${v.type}</span></h4>
+                        <div style="display:flex; align-items:center; gap:1.5rem; margin-top:0.75rem;">
+                            <div style="display:flex; align-items:center; gap:0.25rem; color:#eab308; font-size:0.95rem; font-weight:700;">
+                                <i data-lucide="star" style="width:16px; fill:#eab308;"></i> ${v.rating} <span style="color:var(--text-muted); font-weight:500; font-size:0.85rem;">(${v.reviews})</span>
+                            </div>
+                            <div style="display:flex; align-items:center; gap:0.4rem; color:var(--text-muted); font-size:0.9rem;">
+                                <i data-lucide="truck" style="width:16px;"></i> Dispatch: <span style="font-weight:600; color:var(--text-main);">${v.time}</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div style="text-align:right; border-left:1px solid var(--border-light); padding-left:1.5rem; display:flex; flex-direction:column; justify-content:center;">
+                        <div style="font-size:1.75rem; font-weight:800; color:var(--accent-dark); line-height:1;">₹${v.price.toLocaleString('en-IN')}</div>
+                        <div style="font-size:0.8rem; color:var(--text-muted); margin-bottom:1rem;">/${product.priceUnit||'sqm'}</div>
+                        <button class="btn btn-primary" style="padding:0.6rem 1.5rem; font-size:0.9rem; border-radius:var(--radius-sm);" onclick="addSpecificVendorToCart('${product.id}', ${v.price}, '${v.name}'); closeVendorCompare();">Select Vendor</button>
+                    </div>
+                </div>
+                `).join('')}
+            </div>
+        </div>
+    </div>
+    `;
+    
+    document.body.insertAdjacentHTML('beforeend', modalHTML);
+    lucide.createIcons();
+}
+
+function closeVendorCompare() {
+    const m = document.getElementById('vendorModal');
+    if(m) m.remove();
+}
+
+function addSpecificVendorToCart(productId, overridePrice, vendorName) {
+    const source = state.products.length ? state.products : STATIC_PRODUCTS;
+    const product = source.find(p => p.id == productId);
+    if (!product) return;
+    
+    // Check if dimensional inputs exist
+    const wEl = document.getElementById('w_' + productId);
+    const hEl = document.getElementById('h_' + productId);
+    
+    let sqm = 1;
+    let dimStr = '';
+    
+    if(wEl && hEl) {
+        const w = parseFloat(wEl.value) || 1200;
+        const h = parseFloat(hEl.value) || 2100;
+        sqm = (w * h) / 1000000;
+        dimStr = `<span style="color:#14b8a6">${w}x${h}mm</span>`;
+    }
+    
+    const pricePerPanel = Math.round(overridePrice * sqm);
+    const cartItemId = productId + '_' + (wEl?wEl.value:'def') + 'x' + (hEl?hEl.value:'def') + '_' + vendorName.replace(/\s+/g, '');
+    
+    const ext = state.cart.find(i => i.id === cartItemId);
+    if(ext) { 
+        ext.qty++; 
+    } else { 
+        state.cart.push({ 
+            ...product, 
+            id: cartItemId, 
+            name: product.name,
+            thickness: product.thickness ? `${product.thickness}mm | ${dimStr} | ${vendorName}` : `${dimStr} | ${vendorName}`, 
+            price: pricePerPanel, 
+            qty: 1,
+            supplier: vendorName // save vendor info
+        }); 
+    }
+    
+    saveCart();
+    
+    // Toast notification
+    const t = document.createElement('div');
+    t.innerHTML = `<div style="position:fixed; bottom:2rem; right:2rem; background:#10b981; color:white; padding:1rem 1.5rem; border-radius:8px; display:flex; align-items:center; gap:0.5rem; font-weight:600; box-shadow:var(--shadow-lg); z-index:9999; animation:fadeUp 0.3s ease;"><i data-lucide="check-circle" style="width:20px;"></i> Added ${product.name} (${vendorName})</div>`;
+    document.body.appendChild(t);
+    lucide.createIcons();
+    setTimeout(() => { t.style.opacity='0'; t.style.transition='opacity 0.3s'; setTimeout(()=>t.remove(),300); }, 2500);
 }
 
 function createAISearchResultCard(p) {
@@ -205,7 +321,10 @@ function createAISearchResultCard(p) {
                 <!-- Price and Button Row -->
                 <div class="product-footer" style="border-top: 1px solid var(--border-light); padding-top:1.5rem; margin-top:auto; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem;">
                     <div class="product-price" style="font-size:2rem; color:var(--text-main);">₹${Number(p.price).toLocaleString('en-IN')} <span style="font-size:1rem; color:var(--text-muted); font-weight:500;">/${p.priceUnit||'sqft'} (Ex. GST)</span></div>
-                    <button class="btn btn-primary" onclick="addToCart(${p.id})" style="font-size:1.15rem; padding: 1rem 2rem;"><i data-lucide="shopping-cart" style="width:18px"></i> Add To Cart</button>               
+                    <div style="display:flex; gap:1rem;">
+                        <button class="btn btn-outline" style="font-size:1.15rem; padding: 1rem 1.5rem; border-radius:var(--radius-sm); border:1px solid var(--border-light); display:flex; align-items:center; cursor:pointer;" onclick="openVendorCompare('${p.id}')"><i data-lucide="git-compare" style="width:18px; margin-right:6px;"></i> Compare</button>
+                        <button class="btn btn-primary" onclick="addToCart('${p.id}')" style="font-size:1.15rem; padding: 1rem 2rem;"><i data-lucide="shopping-cart" style="width:18px"></i> Add To Cart</button>               
+                    </div>
                 </div>
             </div>
         </div>
