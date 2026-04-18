@@ -125,8 +125,19 @@
                     <p class="page-subtitle" style="font-size: 1.25rem;">Describe your architectural scenario, budget constraints, or environmental goals.<br>AmalGus AI matches specifications instantly.</p>
                 </div>
                 
+                <!-- Role Selector -->
+                <div style="margin-bottom: 2rem;">
+                    <p style="font-size: 1rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 1rem;">I am a...</p>
+                    <div style="display: flex; gap: 0.75rem; flex-wrap: wrap; justify-content: center;">
+                        <button class="role-pill" onclick="selectRole('homeowner', this)" style="padding:0.6rem 1.25rem; border-radius: var(--radius-pill); border: 1.5px solid var(--accent-dark); font-weight: 600; cursor: pointer; font-size: 0.95rem; background: var(--accent-dark); color: white;">Homeowner</button>
+                        <button class="role-pill" onclick="selectRole('architect', this)" style="padding:0.6rem 1.25rem; border-radius: var(--radius-pill); border: 1.5px solid var(--border-light); font-weight: 600; cursor: pointer; font-size: 0.95rem; background: var(--bg-surface); color: var(--text-muted);">Architect / Designer</button>
+                        <button class="role-pill" onclick="selectRole('builder', this)" style="padding:0.6rem 1.25rem; border-radius: var(--radius-pill); border: 1.5px solid var(--border-light); font-weight: 600; cursor: pointer; font-size: 0.95rem; background: var(--bg-surface); color: var(--text-muted);">Builder / Developer</button>
+                        <button class="role-pill" onclick="selectRole('dealer', this)" style="padding:0.6rem 1.25rem; border-radius: var(--radius-pill); border: 1.5px solid var(--border-light); font-weight: 600; cursor: pointer; font-size: 0.95rem; background: var(--bg-surface); color: var(--text-muted);">Glass Dealer</button>
+                    </div>
+                </div>
+
                 <div class="search-box" style="position: relative;">
-                    <input type="text" id="aiSearchInput" placeholder="What kind of glass do you need?" onkeydown="if(event.key==='Enter') performAISearch()">
+                    <input type="text" id="aiSearchInput" placeholder="e.g. I need glass for my bathroom shower, balcony railing, or bedroom window..." onkeydown="if(event.key==='Enter') performAISearch()">
                     <button class="search-btn" onclick="performAISearch()"><i data-lucide="arrow-right" style="width:28px; height:28px;"></i></button>
                 </div>
                 
@@ -165,11 +176,11 @@
                     <div class="quick-filters" style="display:flex; gap:0.75rem; flex-wrap:wrap; align-items:center;">
                         <span style="font-size:0.85rem; font-weight:700; color:var(--text-muted); text-transform:uppercase; margin-right:0.5rem; display:flex; align-items:center; gap:0.25rem;"><i data-lucide="zap" style="width:14px;"></i> Trending:</span>
                         <button class="prompt-chip" onclick="setCatalogFilter('')" style="background:var(--accent-dark); color:white; border-color:var(--accent-dark);">All</button>
-                        <button class="prompt-chip" onclick="setCatalogFilter('Tempered Glass')">Toughened / Tempered</button>
-                        <button class="prompt-chip" onclick="setCatalogFilter('Laminated Glass')">Laminated</button>
-                        <button class="prompt-chip" onclick="setCatalogFilter('Frosted Glass')">Frosted / Privacy</button>
-                        <button class="prompt-chip" onclick="setCatalogFilter('Fire Rated Glass')">Fire Rated</button>
-                        <button class="prompt-chip" onclick="setCatalogFilter('Acoustic Glass')">Acoustic</button>
+                        <button class="prompt-chip" onclick="setCatalogFilter('toughened')">Toughened / Tempered</button>
+                        <button class="prompt-chip" onclick="setCatalogFilter('laminated')">Laminated</button>
+                        <button class="prompt-chip" onclick="setCatalogFilter('frosted')">Frosted / Privacy</button>
+                        <button class="prompt-chip" onclick="setCatalogFilter('idu')">IGU / DGU</button>
+                        <button class="prompt-chip" onclick="setCatalogFilter('lowe')">Low-E</button>
                     </div>
                 </div>
                 <div class="product-grid" id="catalogGrid"></div>
@@ -320,43 +331,47 @@
                             <div style="background: var(--bg-alt); padding: 0.5rem; border-radius: var(--radius-sm); display:flex; align-items:center; justify-content:center;">
                                 <i data-lucide="sliders-horizontal" style="color:var(--accent-dark); width: 18px; height:18px;"></i>
                             </div>
-                            Structural Parameters
+                            Glass Details
                         </h3>
                         
                         <div style="display: flex; flex-direction: column; gap: 1.75rem;">
                             <div>
-                                <label style="font-weight: 700; font-size: 0.95rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.5rem; display:block;">Glass Composition</label>
+                                <label style="font-weight: 700; font-size: 0.95rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.5rem; display:block;">Glass Type</label>
                                 <select id="estGlassType" class="filter-select" style="width: 100%; font-size:1.15rem; padding: 1rem 1.25rem; background: var(--bg-alt); border: 1px solid var(--border-light); border-radius:var(--radius-md); box-shadow: inset 0 2px 4px rgba(0,0,0,0.02); outline:none;">
-                                    <option>Clear Float 5mm</option>
-                                    <option>Toughened 8mm</option>
-                                    <option>Laminated 10mm</option>
-                                    <option>Acoustic DGU 6+12+6mm</option>
+                                    <option value="float">Clear Float Glass (5mm)</option>
+                                    <option value="toughened">Toughened Safety Glass (8mm)</option>
+                                    <option value="laminated">Laminated Safety Glass (10mm)</option>
+                                    <option value="idu">Insulated Glass Unit / IGU DGU</option>
+                                    <option value="frosted">Frosted Glass (6mm)</option>
+                                    <option value="reflective">Reflective Glass (6mm)</option>
+                                    <option value="lowe">Low-E Glass (6mm)</option>
+                                    <option value="decorative">Back-Painted Glass (8mm)</option>
                                 </select>
                             </div>
                             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
                                 <div>
-                                    <label style="font-weight: 700; font-size: 0.95rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.5rem; display:block;">Width constraint</label>
+                                    <label style="font-weight: 700; font-size: 0.95rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.5rem; display:block;">Width (mm)</label>
                                     <div style="position:relative;">
                                         <i data-lucide="arrow-left-right" style="position:absolute; left:1.25rem; top:50%; transform:translateY(-50%); color:var(--text-muted); width:18px;"></i>
-                                        <input type="number" id="estWidth" class="filter-input" style="width: 100%; font-size:1.15rem; padding: 1rem 1rem 1rem 3.5rem; background: var(--bg-alt); border: 1px solid var(--border-light); box-shadow: inset 0 2px 4px rgba(0,0,0,0.02); outline:none;" placeholder="e.g. 1200mm">
+                                        <input type="number" id="estWidth" class="filter-input" style="width: 100%; font-size:1.15rem; padding: 1rem 1rem 1rem 3.5rem; background: var(--bg-alt); border: 1px solid var(--border-light); box-shadow: inset 0 2px 4px rgba(0,0,0,0.02); outline:none;" placeholder="e.g. 1200">
                                     </div>
                                 </div>
                                 <div>
-                                    <label style="font-weight: 700; font-size: 0.95rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.5rem; display:block;">Height constraint</label>
+                                    <label style="font-weight: 700; font-size: 0.95rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.5rem; display:block;">Height (mm)</label>
                                     <div style="position:relative;">
                                         <i data-lucide="arrow-up-down" style="position:absolute; left:1.25rem; top:50%; transform:translateY(-50%); color:var(--text-muted); width:18px;"></i>
-                                        <input type="number" id="estHeight" class="filter-input" style="width: 100%; font-size:1.15rem; padding: 1rem 1rem 1rem 3.5rem; background: var(--bg-alt); border: 1px solid var(--border-light); box-shadow: inset 0 2px 4px rgba(0,0,0,0.02); outline:none;" placeholder="e.g. 2100mm">
+                                        <input type="number" id="estHeight" class="filter-input" style="width: 100%; font-size:1.15rem; padding: 1rem 1rem 1rem 3.5rem; background: var(--bg-alt); border: 1px solid var(--border-light); box-shadow: inset 0 2px 4px rgba(0,0,0,0.02); outline:none;" placeholder="e.g. 2100">
                                     </div>
                                 </div>
                             </div>
                             <div>
-                                <label style="font-weight: 700; font-size: 0.95rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.5rem; display:block;">Volume (Panels)</label>
+                                <label style="font-weight: 700; font-size: 0.95rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.5rem; display:block;">Quantity (panels)</label>
                                 <div style="position:relative;">
                                     <i data-lucide="layers" style="position:absolute; left:1.25rem; top:50%; transform:translateY(-50%); color:var(--text-muted); width:18px;"></i>
-                                    <input type="number" id="estQty" class="filter-input" style="width: 100%; font-size:1.15rem; padding: 1rem 1rem 1rem 3.5rem; background: var(--bg-alt); border: 1px solid var(--border-light); box-shadow: inset 0 2px 4px rgba(0,0,0,0.02); outline:none;" placeholder="e.g. 10">
+                                    <input type="number" id="estQty" class="filter-input" style="width: 100%; font-size:1.15rem; padding: 1rem 1rem 1rem 3.5rem; background: var(--bg-alt); border: 1px solid var(--border-light); box-shadow: inset 0 2px 4px rgba(0,0,0,0.02); outline:none;" placeholder="e.g. 10" value="1">
                                 </div>
                             </div>
-                            <button class="btn btn-primary" onclick="calculateEstimate()" style="width: 100%; justify-content:center; padding: 1.25rem; font-size:1.15rem; margin-top: 1.5rem; box-shadow: 0 4px 15px rgba(15,23,42,0.15); transition: background 0.3s, transform 0.2s;"><i data-lucide="cpu" style="width:18px; margin-right:6px;"></i> Engage Cost Sync</button>
+                            <button class="btn btn-primary" onclick="calculateEstimate()" style="width: 100%; justify-content:center; padding: 1.25rem; font-size:1.15rem; margin-top: 1.5rem; box-shadow: 0 4px 15px rgba(15,23,42,0.15);"><i data-lucide="calculator" style="width:18px; margin-right:6px;"></i> Calculate Estimate</button>
                         </div>
                     </div>
                     
@@ -369,20 +384,20 @@
                             <!-- Status Bar -->
                             <div style="display:flex; align-items:center; gap:0.5rem; margin-bottom: 2.5rem; background: rgba(0,0,0,0.25); padding: 0.75rem 1rem; border-radius: var(--radius-pill); width: fit-content; border: 1px solid rgba(255,255,255,0.05);">
                                 <span style="display:inline-block; width:8px; height:8px; background:#10b981; border-radius:50%; box-shadow:0 0 10px #10b981;"></span>
-                                <span style="font-size: 0.8rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: #10b981;">Live Market Node Active</span>
+                                <span style="font-size: 0.8rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: #10b981;">Rates updated today</span>
                             </div>
                 
                             <!-- Dynamic Injection Target -->
                             <div id="estResultBox" style="flex:1; display:flex; flex-direction:column; justify-content:center; padding-bottom: 2rem;">
                                 <i data-lucide="bar-chart-3" style="width: 48px; height: 48px; color: rgba(255,255,255,0.15); margin-bottom: 1.5rem;"></i>
-                                <h3 style="font-size: 1.75rem; font-weight: 700; color: white; margin-bottom: 1rem; font-family: var(--font-heading);">Awaiting Data Hook</h3>
-                                <p style="color: #94a3b8; font-size: 1.05rem; line-height: 1.6; max-width: 250px;">Input structural properties on the left to securely fetch un-negotiated B2B bracket costs.</p>
+                                <h3 style="font-size: 1.75rem; font-weight: 700; color: white; margin-bottom: 1rem; font-family: var(--font-heading);">Enter dimensions above to see estimate</h3>
+                                <p style="color: #94a3b8; font-size: 1.05rem; line-height: 1.6; max-width: 250px;">Select glass type, enter your panel dimensions and quantity, then click Calculate.</p>
                             </div>
                             
                             <!-- Meta Footer -->
                             <div style="margin-top:auto; padding-top:1.5rem; border-top: 1px solid rgba(255,255,255,0.1); display:flex; justify-content:space-between; align-items:center;">
                                  <div style="font-size:0.8rem; color:#64748b; font-weight:600; display:flex; align-items:center; gap:4px;"><i data-lucide="shield-check" style="width:14px;"></i> Base Pricing</div>
-                                 <div style="font-size:0.8rem; color:#475569; font-weight:600;">Excludes Freight & Fitting</div>
+                                 <div style="font-size:0.8rem; color:#475569; font-weight:600;">Freight & installation quoted separately</div>
                             </div>
                         </div>
                     </div>

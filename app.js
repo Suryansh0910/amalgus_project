@@ -1,4 +1,17 @@
 // app.js - AmalGus Unified Application Logic
+let selectedRole = 'homeowner';
+
+const STATIC_PRODUCTS = [
+    { id: 1, name: 'Clear Float Glass', category: 'float', thickness: 5, process: 'Plain Cut', application: 'Windows & Doors', price: 52, priceMin: 45, priceMax: 60, priceUnit: 'sqft', color: 'Clear', certification: 'IS 2835', supplier: 'Verified Factory', minOrder: '50 sqm', tags: ['float', 'clear', 'windows'] },
+    { id: 2, name: 'Toughened Safety Glass', category: 'toughened', thickness: 8, process: 'Toughened / Tempered', application: 'Shower Enclosure, Glass Doors', price: 140, priceMin: 120, priceMax: 160, priceUnit: 'sqft', color: 'Clear', certification: 'IS 2553', supplier: 'Verified Factory', minOrder: '30 sqm', tags: ['toughened', 'tempered', 'shower', 'safety'] },
+    { id: 3, name: 'Laminated Safety Glass', category: 'laminated', thickness: 10, process: 'PVB Laminated', application: 'Railing / Balcony Safety', price: 215, priceMin: 180, priceMax: 250, priceUnit: 'sqft', color: 'Clear', certification: 'IS 13830', supplier: 'Verified Factory', minOrder: '20 sqm', tags: ['laminated', 'safety', 'balcony', 'railing'] },
+    { id: 4, name: 'Insulated Glass Unit (IGU/DGU)', category: 'idu', thickness: 24, process: 'Double Glazed', application: 'Facade / Curtain Wall', price: 425, priceMin: 350, priceMax: 500, priceUnit: 'sqft', color: 'Clear', certification: 'IS 1626', supplier: 'Verified Factory', minOrder: '10 sqm', tags: ['IGU', 'DGU', 'facade', 'energy', 'thermal'] },
+    { id: 5, name: 'Frosted Glass', category: 'frosted', thickness: 6, process: 'Acid Etched', application: 'Partition / Privacy Screens', price: 97, priceMin: 85, priceMax: 110, priceUnit: 'sqft', color: 'Frosted', certification: 'IS 2835', supplier: 'Verified Factory', minOrder: '25 sqm', tags: ['frosted', 'privacy', 'partition', 'bathroom'] },
+    { id: 6, name: 'Reflective Glass', category: 'reflective', thickness: 6, process: 'Pyrolytic Coated', application: 'Exterior Facade', price: 120, priceMin: 100, priceMax: 140, priceUnit: 'sqft', color: 'Silver', certification: 'IS 2835', supplier: 'Verified Factory', minOrder: '25 sqm', tags: ['reflective', 'facade', 'exterior', 'coated'] },
+    { id: 7, name: 'Low-E Glass', category: 'lowe', thickness: 6, process: 'Soft Coat Low-E', application: 'Energy Efficient Windows', price: 250, priceMin: 200, priceMax: 300, priceUnit: 'sqft', color: 'Clear', certification: 'IS 2835', supplier: 'Verified Factory', minOrder: '20 sqm', tags: ['Low-E', 'energy', 'thermal', 'windows'] },
+    { id: 8, name: 'Back-Painted Glass', category: 'decorative', thickness: 8, process: 'Lacquered', application: 'Kitchen Splashback / Decorative', price: 185, priceMin: 150, priceMax: 220, priceUnit: 'sqft', color: 'Custom', certification: 'IS 2835', supplier: 'Verified Factory', minOrder: '15 sqm', tags: ['back-painted', 'decorative', 'kitchen', 'lacquered'] },
+];
+
 const state = {
     products: [],
     cart: [],
@@ -49,23 +62,32 @@ function switchTab(tabId) {
 async function fetchProducts() {
     try {
         const res = await fetch('/api/products');
-        if (res.ok) {
-            state.products = await res.json();
-            populateCatalogFilters();
-            renderCatalog();
+        if (!res.ok) {
+            const errData = await res.json().catch(() => ({}));
+            throw new Error(errData.error || 'Server error ' + res.status);
         }
-    } catch (error) { console.warn("Backend not active for products."); }
+        state.products = await res.json();
+        populateCatalogFilters();
+        renderCatalog();
+    } catch (error) { 
+        console.error('Products fetch failed:', error);
+        console.warn("Backend not active for products."); 
+    }
 }
 
 async function fetchRates() {
     try {
         const res = await fetch('/api/rates');
-        if(res.ok) {
-            const rates = await res.json();
-            renderRatesDashboard(rates);
-            populateHomeTicker(rates);
+        if (!res.ok) {
+            const errData = await res.json().catch(() => ({}));
+            throw new Error(errData.error || 'Server error ' + res.status);
         }
-    } catch(err) { console.warn("Backend not active for rates."); }
+        const rates = await res.json();
+        renderRatesDashboard(rates);
+        populateHomeTicker(rates);
+    } catch (err) {
+        console.error('Rates fetch failed:', err);
+    }
 }
 
 // ============================================
@@ -269,7 +291,14 @@ function renderCatalog() {
     const cat = document.getElementById('catalogCategoryFilter').value;
     const q = (document.getElementById('catalogSearch').value||'').toLowerCase();
     
-    const filtered = state.products.filter(p => (!cat || p.category===cat) && (!q || p.name.toLowerCase().includes(q)));
+    // Use backend products if loaded, else fall back to static catalog
+    const source = state.products.length ? state.products : STATIC_PRODUCTS;
+    
+    const filtered = source.filter(p => {
+        const catMatch = !cat || p.category === cat;
+        const qMatch = !q || p.name.toLowerCase().includes(q) || (p.application||'').toLowerCase().includes(q) || (p.process||'').toLowerCase().includes(q);
+        return catMatch && qMatch;
+    });
     
     if(!filtered.length) {
         grid.innerHTML = `<div class="empty-state" style="grid-column: 1/-1"><i data-lucide="search-x"></i><h3>No products found</h3></div>`;
@@ -282,21 +311,47 @@ function renderCatalog() {
 // ============================================
 // AI Search Tab
 // ============================================
+function selectRole(role, el) {
+    selectedRole = role;
+    document.querySelectorAll('.role-pill').forEach(b => {
+        b.style.background = 'var(--bg-surface)';
+        b.style.color = 'var(--text-muted)';
+        b.style.borderColor = 'var(--border-light)';
+    });
+    el.style.background = 'var(--accent-dark)';
+    el.style.color = 'white';
+    el.style.borderColor = 'var(--accent-dark)';
+    const placeholders = {
+        homeowner: 'e.g. I need glass for my bathroom shower, balcony railing, or bedroom window...',
+        architect: 'e.g. Structural glazing for south facade, acoustic laminated for boardroom partition...',
+        builder:   'e.g. Bulk toughened glass for 50 apartments, IGU units for curtain wall system...',
+        dealer:    'e.g. 6mm clear float stock price, 8mm toughened availability from factory...'
+    };
+    const inp = document.getElementById('aiSearchInput');
+    if(inp) inp.placeholder = placeholders[role] || placeholders.homeowner;
+}
+
 async function performAISearch() {
     const q = document.getElementById('aiSearchInput').value.trim();
     if(!q) return;
     const resContainer = document.getElementById('searchResults');
-    resContainer.innerHTML = `<div class="empty-state" style="grid-column: 1/-1"><i data-lucide="loader" class="spin"></i><p>Analyzing architecture logic...</p></div>`;
+    resContainer.innerHTML = `<div class="empty-state" style="grid-column: 1/-1"><i data-lucide="loader" class="spin"></i><p>Finding best matches...</p></div>`;
     lucide.createIcons();
 
     try {
         const res = await fetch('/api/search', {
             method: 'POST', headers: {'Content-Type':'application/json'},
-            body: JSON.stringify({ query: q, topK: 3, filters: {} })
+            body: JSON.stringify({ query: q, topK: 3, filters: {}, role: selectedRole })
         });
-        if(res.ok) {
-            const data = await res.json();
-            if(data.results && data.results.length) {
+        
+        if (!res.ok) {
+            const errData = await res.json().catch(() => ({}));
+            throw new Error(errData.error || 'Server error ' + res.status + ' — Check that GROQ_API_KEY is set in Render environment variables.');
+        }
+        
+        const data = await res.json();
+        
+        if(data.results && data.results.length > 0) {
                 // Determine Allied products dynamically based on match
                 const ALLIED_PRODUCTS = {
                     'toughened': [
@@ -360,10 +415,12 @@ async function performAISearch() {
 
                 resContainer.innerHTML = `<h3 style="margin-bottom:1.5rem; font-size:2.25rem; width:100%; grid-column:1/-1;">AI Match Results for "${q}"</h3>` 
                                          + mainMatchesHTML + alliedHTML;
-            } else resContainer.innerHTML = `<div class="empty-state" style="grid-column: 1/-1"><i data-lucide="info"></i><p>No exact matches.</p></div>`;
+        } else {
+            resContainer.innerHTML = `<div class="empty-state" style="grid-column: 1/-1"><i data-lucide="info"></i><p style="opacity:0.6;padding:16px">No matches found. Try a different query.</p></div>`;
         }
     } catch(e) {
-        resContainer.innerHTML = `<div class="empty-state" style="grid-column: 1/-1; color:var(--danger)"><p>Backend connection failed. Ensure node server is running.</p></div>`;
+        console.error('Search failed:', e);
+        resContainer.innerHTML = `<div class="empty-state" style="grid-column: 1/-1;"><p style="color:#ef4444;padding:16px">Search error: ${e.message}</p></div>`;
     }
     lucide.createIcons();
 }
@@ -371,41 +428,56 @@ async function performAISearch() {
 // ============================================
 // Estimate Tab
 // ============================================
-async function calculateEstimate() {
-    const glassType = document.getElementById('estGlassType').value;
-    const w = document.getElementById('estWidth').value;
-    const h = document.getElementById('estHeight').value;
-    const qty = document.getElementById('estQty').value;
+function calculateEstimate() {
+    const glassTypeKey = document.getElementById('estGlassType').value;
+    const w = parseFloat(document.getElementById('estWidth').value);
+    const h = parseFloat(document.getElementById('estHeight').value);
+    const qty = parseInt(document.getElementById('estQty').value) || 1;
+    const resDiv = document.getElementById('estResultBox');
     
-    if(!w || !h || !qty) return alert("Fill in dimensions and quantity!");
-    
-    try {
-        const res = await fetch('/api/estimate', {
-            method: 'POST', headers: {'Content-Type':'application/json'},
-            body: JSON.stringify({ glassType, width: w, height: h, qty })
-        });
-        if(res.ok) {
-            const data = await res.json();
-            const resDiv = document.getElementById('estResultBox');
-            resDiv.classList.remove('hidden');
-            resDiv.innerHTML = `
-                <p style="font-weight:700; color:#cbd5e1; font-size:1.1rem; text-transform:uppercase; letter-spacing:0.05em; margin-bottom:0.25rem;">Estimated Material Cost</p>
-                <h2 style="font-size:3.75rem; color:white; margin:0.5rem 0 1rem 0; font-family:var(--font-heading); text-shadow: 0 4px 20px rgba(0,0,0,0.5);">₹${data.minPrice.toLocaleString()} <span style="color:#14b8a6; font-weight:400; font-size:2.5rem;">-</span> ₹${data.maxPrice.toLocaleString()}</h2>
-                
-                <div style="background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.1); border-radius: var(--radius-sm); padding: 1rem; text-align: left;">
-                    <div style="font-size:1.05rem; color:#cbd5e1; display:flex; align-items:center; gap:0.5rem; margin-bottom:0.5rem;">
-                        <i data-lucide="scan-line" style="width:16px; color:#14b8a6;"></i> Data payload: ${data.sqft} sqft (${qty} panels)
-                    </div>
-                    <div style="font-size:1.05rem; color:#cbd5e1; display:flex; align-items:center; gap:0.5rem;">
-                        <i data-lucide="bar-chart-2" style="width:16px; color:#14b8a6;"></i> Sourced benchmark: ₹${data.rateMin} - ₹${data.rateMax} / sqft
-                    </div>
-                </div>
-            `;
-            lucide.createIcons();
-        }
-    } catch(e) {
-        alert("Estimation API error. Confirm backend serves /api/estimate.");
+    if(!w || !h) {
+        resDiv.innerHTML = `<p style="color:#ef4444; padding:1rem;">Please enter both width and height in mm.</p>`;
+        return;
     }
+    
+    const rates = {
+        'float':      { min: 45,  max: 60,  name: 'Clear Float 5mm' },
+        'toughened':  { min: 120, max: 160, name: 'Toughened 8mm' },
+        'laminated':  { min: 180, max: 250, name: 'Laminated 10mm' },
+        'idu':        { min: 350, max: 500, name: 'IGU/DGU 6+12+6mm' },
+        'frosted':    { min: 85,  max: 110, name: 'Frosted 6mm' },
+        'reflective': { min: 100, max: 140, name: 'Reflective 6mm' },
+        'lowe':       { min: 200, max: 300, name: 'Low-E 6mm' },
+        'decorative': { min: 150, max: 220, name: 'Back-Painted 8mm' },
+    };
+    
+    const rate = rates[glassTypeKey] || rates['float'];
+    // Convert mm to sqft: 1 sqft = 92,900 mm²
+    const areaSqft = (w * h * qty) / 92900;
+    const minCost = Math.round(areaSqft * rate.min);
+    const maxCost = Math.round(areaSqft * rate.max);
+    
+    resDiv.innerHTML = `
+        <div style="text-align:left;">
+            <p style="font-weight:700; color:#94a3b8; font-size:0.85rem; text-transform:uppercase; letter-spacing:0.08em; margin-bottom:1.5rem;">Estimate Summary</p>
+            <div style="font-size:0.95rem; color:#cbd5e1; margin-bottom:1.5rem; display:flex; flex-direction:column; gap:0.5rem;">
+                <div style="display:flex; justify-content:space-between;"><span style="color:#64748b;">Glass Type</span><span style="font-weight:600;">${rate.name}</span></div>
+                <div style="display:flex; justify-content:space-between;"><span style="color:#64748b;">Size</span><span style="font-weight:600;">${w}mm x ${h}mm</span></div>
+                <div style="display:flex; justify-content:space-between;"><span style="color:#64748b;">Quantity</span><span style="font-weight:600;">${qty} panel${qty>1?'s':''}</span></div>
+                <div style="display:flex; justify-content:space-between;"><span style="color:#64748b;">Total Area</span><span style="font-weight:600;">${areaSqft.toFixed(1)} sqft</span></div>
+            </div>
+            <div style="border-top:1px solid rgba(255,255,255,0.08); padding-top:1.25rem; margin-bottom:1.25rem;">
+                <p style="font-size:0.8rem; color:#64748b; font-weight:700; text-transform:uppercase; margin-bottom:0.5rem;">Estimated Cost</p>
+                <h2 style="font-size:2.75rem; color:white; font-family:var(--font-heading); line-height:1;">₹${minCost.toLocaleString('en-IN')} <span style="font-size:1.75rem; color:#14b8a6;">–</span> ₹${maxCost.toLocaleString('en-IN')}</h2>
+                <p style="font-size:0.9rem; color:#64748b; margin-top:0.5rem;">₹${rate.min} – ₹${rate.max} per sqft (today's rate)</p>
+            </div>
+            <div style="font-size:0.82rem; color:#475569; margin-bottom:1.5rem; line-height:1.6;">
+                * Excludes installation &amp; freight<br>* Final price confirmed by supplier
+            </div>
+            <button class="btn btn-primary" style="width:100%; justify-content:center; padding:0.9rem;" onclick="switchTab('search')"><i data-lucide="send" style="width:16px; margin-right:6px;"></i> Request Exact Quote</button>
+        </div>
+    `;
+    lucide.createIcons();
 }
 
 // ============================================
