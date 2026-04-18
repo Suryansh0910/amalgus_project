@@ -1,6 +1,6 @@
 // server.js — AmalGus Backend
 // Vector search: TF-IDF cosine similarity (runs 100% locally, no model download)
-// AI explanations: Anthropic Claude API
+// AI explanations: Groq API (llama-3.3-70b-versatile)
 
 import express from 'express';
 import cors from 'cors';
@@ -8,7 +8,7 @@ import dotenv from 'dotenv';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { createRequire } from 'module';
-import Anthropic from '@anthropic-ai/sdk';
+import Groq from 'groq-sdk';
 import { PRODUCTS } from './products.js';
 
 dotenv.config();
@@ -162,30 +162,48 @@ app.post('/api/search', async (req, res) => {
       return { ...p, matchScore: pct };
     });
 
-    // 5. Claude explanations
+    // 5. Groq explanations
     let explanations = [];
-    const key = process.env.ANTHROPIC_API_KEY;
-    if (key && key !== 'your_anthropic_api_key_here') {
-      const client = new Anthropic({ apiKey: key });
-      const summaries = results.map((p, i) =>
-        `Product ${i+1}: "${p.name}" (${p.category}${p.thickness?', '+p.thickness+'mm':''}, ₹${p.price} ${p.priceUnit}). ${p.description}`
-      ).join('\n\n');
-
-      const msg = await client.messages.create({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 1000,
-        system: 'You are a glass expert at AmalGus marketplace. Give clear, simple explanations to buyers. Respond with valid JSON only.',
-        messages: [{ role: 'user', content:
-          `Buyer requirement: "${query}"\n\nMatched products:\n${summaries}\n\n` +
-          `Return a JSON array of ${results.length} objects each with:\n` +
-          `- id (1/2/3)\n- whyThisGlass (2-3 simple sentences why it fits)\n` +
-          `- keyBenefits (array of 3 strings, max 6 words each)\n` +
-          `- considerations (1 sentence trade-off)\nNo markdown, only JSON.`
-        }]
-      });
+    const key = process.env.GROQ_API_KEY;
+    if (key && key !== 'your_groq_api_key_here') {
+      console.log('[GROQ] Key detected, calling Groq API...');
       try {
-        explanations = JSON.parse(msg.content[0].text.replace(/```json|```/g,'').trim());
-      } catch { /* use fallback */ }
+        const client = new Groq({ apiKey: key });
+        const summaries = results.map((p, i) =>
+          `Product ${i+1}: "${p.name}" (${p.category}${p.thickness?', '+p.thickness+'mm':''}, ₹${p.price} ${p.priceUnit}). ${p.description}`
+        ).join('\n\n');
+
+        const msg = await client.chat.completions.create({
+          model: 'llama-3.3-70b-versatile',
+          max_tokens: 1024,
+          response_format: { type: 'json_object' },
+          messages: [
+            {
+              role: 'system',
+              content: 'You are a glass expert at AmalGus marketplace. Give clear, simple explanations to buyers. Respond with valid JSON only. Your entire response must be a single JSON object with a key "items" containing an array.'
+            },
+            {
+              role: 'user',
+              content:
+                `Buyer requirement: "${query}"\n\nMatched products:\n${summaries}\n\n` +
+                `Return a JSON object with key "items" containing an array of ${results.length} objects each with:\n` +
+                `- id (1, 2, or 3)\n- whyThisGlass (2-3 simple sentences why it fits the buyer)\n` +
+                `- keyBenefits (array of exactly 3 short strings, max 6 words each)\n` +
+                `- considerations (1 sentence trade-off or limitation)\nOnly JSON, no markdown.`
+            }
+          ]
+        });
+
+        const raw = msg.choices[0].message.content.trim();
+        console.log('[GROQ] Raw response:', raw.slice(0, 200));
+        const parsed = JSON.parse(raw);
+        explanations = parsed.items || parsed;
+        console.log(`[GROQ] Got ${explanations.length} explanations.`);
+      } catch (groqErr) {
+        console.error('[GROQ] API error:', groqErr.message || groqErr);
+      }
+    } else {
+      console.log('[GROQ] No API key found — using fallback explanations.');
     }
 
     // 6. Merge & respond
@@ -203,6 +221,60 @@ app.post('/api/search', async (req, res) => {
     console.error(err);
     res.status(500).json({ error: err.message });
   }
+});
+
+app.get('/api/rates', (_req, res) => {
+  res.json([
+    { name: 'Clear Float', thickness: '5mm', rate: '₹48/sqft', trend: 'UP' },
+    { name: 'Clear Float', thickness: '8mm', rate: '₹75/sqft', trend: 'STABLE' },
+    { name: 'Extra Clear (Low Iron)', thickness: '10mm', rate: '₹140/sqft', trend: 'UP' },
+    { name: 'Toughened', thickness: '8mm', rate: '₹135/sqft', trend: 'DOWN' },
+    { name: 'Toughened', thickness: '12mm', rate: '₹185/sqft', trend: 'UP' },
+    { name: 'Laminated', thickness: '10mm (5+5)', rate: '₹210/sqft', trend: 'STABLE' },
+    { name: 'SGP Laminated', thickness: '12mm', rate: '₹550/sqft', trend: 'UP' },
+    { name: 'IGU / DGU', thickness: '6+12+6mm', rate: '₹420/sqft', trend: 'UP' },
+    { name: 'Frosted', thickness: '6mm', rate: '₹95/sqft', trend: 'STABLE' },
+    { name: 'Tinted Grey', thickness: '8mm', rate: '₹110/sqft', trend: 'DOWN' },
+    { name: 'Reflective Blue', thickness: '6mm', rate: '₹118/sqft', trend: 'DOWN' },
+    { name: 'Low-E Soft Coat', thickness: '6mm', rate: '₹245/sqft', trend: 'UP' },
+    { name: 'Back-Painted Lacquered', thickness: '8mm', rate: '₹175/sqft', trend: 'STABLE' },
+    { name: 'Fluted / Ribbed', thickness: '8mm', rate: '₹280/sqft', trend: 'UP' },
+    { name: 'Acoustic Glass', thickness: '11mm', rate: '₹340/sqft', trend: 'STABLE' }
+  ]);
+});
+
+app.post('/api/estimate', (req, res) => {
+  const { glassType, width, height, qty } = req.body;
+  
+  const rates = {
+    'Clear Float 5mm': { min: 45, max: 60 },
+    'Toughened 8mm': { min: 120, max: 160 },
+    'Laminated 10mm': { min: 180, max: 250 },
+    'IGU/DGU 6+12+6mm': { min: 350, max: 500 },
+    'Frosted 6mm': { min: 85, max: 110 },
+    'Reflective 6mm': { min: 100, max: 140 },
+    'Low-E 6mm': { min: 200, max: 300 },
+    'Back-Painted 8mm': { min: 150, max: 220 }
+  };
+
+  const rate = rates[glassType] || { min: 0, max: 0 };
+  const w = parseFloat(width) || 0;
+  const h = parseFloat(height) || 0;
+  const q = parseInt(qty, 10) || 0;
+  
+  const sqft = (w * h * q) / 92900;
+  
+  const minPrice = Math.round(sqft * rate.min);
+  const maxPrice = Math.round(sqft * rate.max);
+
+  res.json({
+    glassType,
+    sqft: sqft.toFixed(2),
+    minPrice,
+    maxPrice,
+    rateMin: rate.min,
+    rateMax: rate.max
+  });
 });
 
 app.get('*', (_req, res) =>
