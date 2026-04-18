@@ -2,25 +2,41 @@
 let selectedRole = 'homeowner';
 
 const STATIC_PRODUCTS = [
-    { id: 1, name: 'Clear Float Glass', category: 'float', thickness: 5, process: 'Plain Cut', application: 'Windows & Doors', price: 52, priceUnit: 'sqft', color: 'Clear', certification: 'IS 2835', supplier: 'Verified Factory', minOrder: '50 sqm', tags: ['float', 'clear', 'windows'], vendors: [
+    { id: 1, name: 'Clear Float Glass', category: 'float', thickness: 5, process: 'Plain Cut', application: 'Windows & Doors', price: 52, priceUnit: 'sqft', color: 'Clear', certification: 'IS 2835', supplier: 'AmalGus Direct', minOrder: '50 sqm', tags: ['float', 'clear', 'windows'], vendors: [
         { name: 'AmalGus Direct', price: 52, time: '3 Days', rating: 4.8, reviews: 156, type: 'Factory' },
         { name: 'Bharat Glass Corp', price: 48, time: '6 Days', rating: 4.2, reviews: 89, type: 'Wholesaler' },
         { name: 'UltraGlass Premium', price: 58, time: '1 Day', rating: 4.9, reviews: 210, type: 'Express' }
     ]},
-    { id: 2, name: 'Toughened Safety Glass', category: 'toughened', thickness: 8, process: 'Toughened / Tempered', application: 'Shower Enclosure, Glass Doors', price: 140, priceUnit: 'sqft', color: 'Clear', certification: 'IS 2553', supplier: 'Verified Factory', minOrder: '30 sqm', tags: ['toughened', 'tempered', 'shower', 'safety'], vendors: [
+    { id: 2, name: 'Toughened Safety Glass', category: 'toughened', thickness: 8, process: 'Toughened / Tempered', application: 'Shower Enclosure, Glass Doors', price: 140, priceUnit: 'sqft', color: 'Clear', certification: 'IS 2553', supplier: 'SafetyShield Mfg', minOrder: '30 sqm', tags: ['toughened', 'tempered', 'shower', 'safety'], vendors: [
         { name: 'SafetyShield Mfg', price: 140, time: '4 Days', rating: 4.7, reviews: 312, type: 'Factory' },
         { name: 'RegionGlass Wholesale', price: 132, time: '8 Days', rating: 4.1, reviews: 45, type: 'Wholesaler' },
         { name: 'SwiftStructure Pro', price: 155, time: '2 Days', rating: 5.0, reviews: 120, type: 'Premium' }
     ]},
-    { id: 3, name: 'Laminated Safety Glass', category: 'laminated', thickness: 10, process: 'PVB Laminated', application: 'Railing / Balcony Safety', price: 215, priceUnit: 'sqft', color: 'Clear', certification: 'IS 13830', supplier: 'Verified Factory', minOrder: '20 sqm', tags: ['laminated', 'safety', 'balcony', 'railing'], vendors: [
+    { id: 3, name: 'Laminated Safety Glass', category: 'laminated', thickness: 10, process: 'PVB Laminated', application: 'Railing / Balcony Safety', price: 215, priceUnit: 'sqft', color: 'Clear', certification: 'IS 13830', supplier: 'BondedGlass Industries', minOrder: '20 sqm', tags: ['laminated', 'safety', 'balcony', 'railing'], vendors: [
         { name: 'BondedGlass Industries', price: 215, time: '5 Days', rating: 4.6, reviews: 180, type: 'Factory' },
         { name: 'BulkGlass India', price: 195, time: '10 Days', rating: 4.0, reviews: 67, type: 'Distributor' },
         { name: 'PrimeLaminate+', price: 240, time: '3 Days', rating: 4.9, reviews: 93, type: 'Specialist' }
     ]},
-    { id: 4, name: 'Insulated Glass Unit (IGU/DGU)', category: 'idu', thickness: 24, process: 'Double Glazed', application: 'Facade / Curtain Wall', price: 425, priceUnit: 'sqft', color: 'Clear', certification: 'IS 1626', supplier: 'Verified Factory', minOrder: '10 sqm', tags: ['IGU', 'DGU', 'facade', 'energy', 'thermal'], vendors: [
+    { id: 4, name: 'Insulated Glass Unit (IGU/DGU)', category: 'idu', thickness: 24, process: 'Double Glazed', application: 'Facade / Curtain Wall', price: 425, priceUnit: 'sqft', color: 'Clear', certification: 'IS 1626', supplier: 'ThermalWrap Facades', minOrder: '10 sqm', tags: ['IGU', 'DGU', 'facade', 'energy', 'thermal'], vendors: [
         { name: 'ThermalWrap Facades', price: 425, time: '7 Days', rating: 4.5, reviews: 54, type: 'Factory' },
         { name: 'EcoShield Solutions', price: 410, time: '12 Days', rating: 4.3, reviews: 31, type: 'OEM' },
         { name: 'VelocityGlaze', price: 460, time: '4 Days', rating: 4.8, reviews: 88, type: 'Fast-Track' }
+    ]},
+    { id: 5, name: 'Frosted Glass', category: 'frosted', thickness: 6, process: 'Acid Etched', application: 'Partition / Privacy Screens', price: 97, priceUnit: 'sqft', color: 'Frosted', certification: 'IS 2835', supplier: 'PrivacyGlass Ltd', minOrder: '25 sqm', tags: ['frosted', 'privacy', 'partition', 'bathroom'], vendors: [
+        { name: 'PrivacyGlass Ltd', price: 97, time: '4 Days', rating: 4.6, reviews: 42, type: 'Factory' },
+        { name: 'Opaque Solutions', price: 92, time: '7 Days', rating: 4.4, reviews: 28, type: 'Distributor' }
+    ]},
+    { id: 6, name: 'Reflective Glass', category: 'reflective', thickness: 6, process: 'Pyrolytic Coated', application: 'Exterior Facade', price: 120, priceUnit: 'sqft', color: 'Silver', certification: 'IS 2835', supplier: 'ReflectoFab', minOrder: '25 sqm', tags: ['reflective', 'facade', 'exterior', 'coated'], vendors: [
+        { name: 'ReflectoFab', price: 120, time: '5 Days', rating: 4.5, reviews: 36, type: 'Factory' },
+        { name: 'FacadeDirect', price: 115, time: '9 Days', rating: 4.2, reviews: 21, type: 'Wholesaler' }
+    ]},
+    { id: 7, name: 'Low-E Glass', category: 'lowe', thickness: 6, process: 'Soft Coat Low-E', application: 'Energy Efficient Windows', price: 250, priceUnit: 'sqft', color: 'Clear', certification: 'IS 2835', supplier: 'EcoGlass Innovations', minOrder: '20 sqm', tags: ['Low-E', 'energy', 'thermal', 'windows'], vendors: [
+        { name: 'EcoGlass Innovations', price: 250, time: '6 Days', rating: 4.7, reviews: 29, type: 'Specialist' },
+        { name: 'GreenGlaze Co', price: 240, time: '10 Days', rating: 4.5, reviews: 18, type: 'OEM' }
+    ]},
+    { id: 8, name: 'Back-Painted Glass', category: 'decorative', thickness: 8, process: 'Lacquered', application: 'Kitchen Splashback / Decorative', price: 185, priceUnit: 'sqft', color: 'Custom', certification: 'IS 2835', supplier: 'DecorPanels', minOrder: '15 sqm', tags: ['back-painted', 'decorative', 'kitchen', 'lacquered'], vendors: [
+        { name: 'DecorPanels', price: 185, time: '5 Days', rating: 4.8, reviews: 55, type: 'Designer Fabricator' },
+        { name: 'ColorGlass Studio', price: 175, time: '8 Days', rating: 4.6, reviews: 41, type: 'Small Batch' }
     ]},
 ];
 
@@ -831,11 +847,12 @@ function updateCartQty(id, amt) {
 }
 
 const alliedAccessories = [
-    { id: 'a1', name: 'High-Viscosity Silicone Sealant (Clear)', price: 450, tag: 'Sealant', match: ['float', 'frosted', 'toughened'] },
-    { id: 'a2', name: '316-Grade Stainless Steel Spigots', price: 1250, tag: 'Hardware', match: ['laminated', 'toughened'] },
-    { id: 'a3', name: 'Aluminium U-Channel Profile (3m Base)', price: 850, tag: 'Extrusion', match: ['acoustic', 'laminated', 'float', 'frosted'] },
-    { id: 'a4', name: 'Intumescent Fire Seal Strip (Roll)', price: 2100, tag: 'Safety', match: ['fire rated'] },
-    { id: 'a5', name: 'Acoustic Edge Dampening Tape', price: 320, tag: 'Insulation', match: ['acoustic'] }
+    { id: 'a1', name: 'High-Viscosity Silicone Sealant (Clear)', price: 450, tag: 'Sealant', match: ['float', 'frosted', 'toughened', 'decorative'], image: 'https://images.unsplash.com/photo-1581092580497-e0d23cbdf1dc?q=80&w=400' },
+    { id: 'a2', name: '316-Grade Stainless Steel Spigots (Set of 2)', price: 1850, tag: 'Hardware', match: ['laminated', 'toughened'], image: 'https://images.unsplash.com/photo-1517646288022-779899f8992e?q=80&w=400' },
+    { id: 'a3', name: 'Aluminium U-Channel Profile (3m Base)', price: 850, tag: 'Extrusion', match: ['acoustic', 'laminated', 'float', 'frosted'], image: 'https://images.unsplash.com/photo-1533038595180-f748d8d1847a?q=80&w=400' },
+    { id: 'a4', name: 'Heavy Duty Patch Fittings (Floor Spring Ready)', price: 3200, tag: 'Hardware', match: ['toughened'], image: 'https://images.unsplash.com/photo-1542013936693-884638324a02?q=80&w=400' },
+    { id: 'a5', name: 'DGU Primary Sealant & Spacers (Per Meter)', price: 120, tag: 'Insulation', match: ['idu'], image: 'https://images.unsplash.com/photo-1504384308090-c894fdcc538d?q=80&w=400' },
+    { id: 'a6', name: 'Glass Lacquer Solvent (Cleaning Grade)', price: 280, tag: 'Cleaning', match: ['decorative'], image: 'https://images.unsplash.com/photo-1584622650111-993a426fbf0a?q=80&w=400' }
 ];
 
 function addAlliedToCart(aid) {
@@ -843,7 +860,7 @@ function addAlliedToCart(aid) {
     if(!ax) return;
     const existing = state.cart.find(i => i.id === aid);
     if(existing) { existing.qty++; } else {
-        state.cart.push({ id: ax.id, name: ax.name, category: ax.tag, price: ax.price, image: 'https://images.unsplash.com/photo-1581092580497-e0d23cbdf1dc?q=80&w=400&auto=format&fit=crop', qty: 1 });
+        state.cart.push({ id: ax.id, name: ax.name, category: ax.tag, price: ax.price, image: ax.image, qty: 1, supplier: 'Verified Allied Partner' });
     }
     saveCart(); renderCart();
 }
@@ -900,13 +917,17 @@ function renderCart() {
     let matchedKeywords = [];
     state.cart.forEach(c => {
         const cat = (c.category||'').toLowerCase();
-        if(cat.includes('tough')) matchedKeywords.push('toughened'); if(cat.includes('lamin')) matchedKeywords.push('laminated');
-        if(cat.includes('float')) matchedKeywords.push('float'); if(cat.includes('frost')) matchedKeywords.push('frosted');
-        if(cat.includes('acous')) matchedKeywords.push('acoustic'); if(cat.includes('fire')) matchedKeywords.push('fire rated');
+        matchedKeywords.push(cat); // Match exact category
+        if(cat.includes('tough')) matchedKeywords.push('toughened'); 
+        if(cat.includes('lamin')) matchedKeywords.push('laminated');
+        if(cat.includes('float')) matchedKeywords.push('float'); 
+        if(cat.includes('frost')) matchedKeywords.push('frosted');
+        if(cat.includes('acous')) matchedKeywords.push('acoustic'); 
+        if(cat.includes('fire')) matchedKeywords.push('fire rated');
+        if(cat.includes('deco') || cat.includes('painted')) matchedKeywords.push('decorative');
     });
     
     let suggested = alliedAccessories.filter(a => {
-        // Only suggest if they don't already have it in cart, and it matches their glass types
         const inCart = state.cart.find(c => c.id === a.id);
         const isMatch = a.match.some(m => matchedKeywords.includes(m));
         return !inCart && isMatch;
