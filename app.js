@@ -499,9 +499,16 @@ function selectRole(role, el) {
 }
 
 async function performAISearch() {
-    const q = document.getElementById('aiSearchInput').value.trim();
+    // Check both input fields (home page and AI Match tab)
+    const inp1 = document.getElementById('aiSearchInput');
+    const inp2 = document.getElementById('aiSearchInput2');
+    const q = (inp1 && inp1.value.trim()) || (inp2 && inp2.value.trim()) || '';
     if(!q) return;
-    const resContainer = document.getElementById('searchResults');
+    
+    // Determine which results container to use
+    const resContainer = document.getElementById('searchResults') || document.getElementById('searchResults2');
+    // Also update the secondary container if it exists
+    const resContainer2 = document.getElementById('searchResults2');
     resContainer.innerHTML = `<div class="empty-state" style="grid-column: 1/-1"><i data-lucide="loader" class="spin"></i><p>Finding best matches...</p></div>`;
     lucide.createIcons();
 
