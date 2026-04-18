@@ -2,14 +2,26 @@
 let selectedRole = 'homeowner';
 
 const STATIC_PRODUCTS = [
-    { id: 1, name: 'Clear Float Glass', category: 'float', thickness: 5, process: 'Plain Cut', application: 'Windows & Doors', price: 52, priceMin: 45, priceMax: 60, priceUnit: 'sqft', color: 'Clear', certification: 'IS 2835', supplier: 'Verified Factory', minOrder: '50 sqm', tags: ['float', 'clear', 'windows'] },
-    { id: 2, name: 'Toughened Safety Glass', category: 'toughened', thickness: 8, process: 'Toughened / Tempered', application: 'Shower Enclosure, Glass Doors', price: 140, priceMin: 120, priceMax: 160, priceUnit: 'sqft', color: 'Clear', certification: 'IS 2553', supplier: 'Verified Factory', minOrder: '30 sqm', tags: ['toughened', 'tempered', 'shower', 'safety'] },
-    { id: 3, name: 'Laminated Safety Glass', category: 'laminated', thickness: 10, process: 'PVB Laminated', application: 'Railing / Balcony Safety', price: 215, priceMin: 180, priceMax: 250, priceUnit: 'sqft', color: 'Clear', certification: 'IS 13830', supplier: 'Verified Factory', minOrder: '20 sqm', tags: ['laminated', 'safety', 'balcony', 'railing'] },
-    { id: 4, name: 'Insulated Glass Unit (IGU/DGU)', category: 'idu', thickness: 24, process: 'Double Glazed', application: 'Facade / Curtain Wall', price: 425, priceMin: 350, priceMax: 500, priceUnit: 'sqft', color: 'Clear', certification: 'IS 1626', supplier: 'Verified Factory', minOrder: '10 sqm', tags: ['IGU', 'DGU', 'facade', 'energy', 'thermal'] },
-    { id: 5, name: 'Frosted Glass', category: 'frosted', thickness: 6, process: 'Acid Etched', application: 'Partition / Privacy Screens', price: 97, priceMin: 85, priceMax: 110, priceUnit: 'sqft', color: 'Frosted', certification: 'IS 2835', supplier: 'Verified Factory', minOrder: '25 sqm', tags: ['frosted', 'privacy', 'partition', 'bathroom'] },
-    { id: 6, name: 'Reflective Glass', category: 'reflective', thickness: 6, process: 'Pyrolytic Coated', application: 'Exterior Facade', price: 120, priceMin: 100, priceMax: 140, priceUnit: 'sqft', color: 'Silver', certification: 'IS 2835', supplier: 'Verified Factory', minOrder: '25 sqm', tags: ['reflective', 'facade', 'exterior', 'coated'] },
-    { id: 7, name: 'Low-E Glass', category: 'lowe', thickness: 6, process: 'Soft Coat Low-E', application: 'Energy Efficient Windows', price: 250, priceMin: 200, priceMax: 300, priceUnit: 'sqft', color: 'Clear', certification: 'IS 2835', supplier: 'Verified Factory', minOrder: '20 sqm', tags: ['Low-E', 'energy', 'thermal', 'windows'] },
-    { id: 8, name: 'Back-Painted Glass', category: 'decorative', thickness: 8, process: 'Lacquered', application: 'Kitchen Splashback / Decorative', price: 185, priceMin: 150, priceMax: 220, priceUnit: 'sqft', color: 'Custom', certification: 'IS 2835', supplier: 'Verified Factory', minOrder: '15 sqm', tags: ['back-painted', 'decorative', 'kitchen', 'lacquered'] },
+    { id: 1, name: 'Clear Float Glass', category: 'float', thickness: 5, process: 'Plain Cut', application: 'Windows & Doors', price: 52, priceUnit: 'sqft', color: 'Clear', certification: 'IS 2835', supplier: 'Verified Factory', minOrder: '50 sqm', tags: ['float', 'clear', 'windows'], vendors: [
+        { name: 'AmalGus Direct', price: 52, time: '3 Days', rating: 4.8, reviews: 156, type: 'Factory' },
+        { name: 'Bharat Glass Corp', price: 48, time: '6 Days', rating: 4.2, reviews: 89, type: 'Wholesaler' },
+        { name: 'UltraGlass Premium', price: 58, time: '1 Day', rating: 4.9, reviews: 210, type: 'Express' }
+    ]},
+    { id: 2, name: 'Toughened Safety Glass', category: 'toughened', thickness: 8, process: 'Toughened / Tempered', application: 'Shower Enclosure, Glass Doors', price: 140, priceUnit: 'sqft', color: 'Clear', certification: 'IS 2553', supplier: 'Verified Factory', minOrder: '30 sqm', tags: ['toughened', 'tempered', 'shower', 'safety'], vendors: [
+        { name: 'SafetyShield Mfg', price: 140, time: '4 Days', rating: 4.7, reviews: 312, type: 'Factory' },
+        { name: 'RegionGlass Wholesale', price: 132, time: '8 Days', rating: 4.1, reviews: 45, type: 'Wholesaler' },
+        { name: 'SwiftStructure Pro', price: 155, time: '2 Days', rating: 5.0, reviews: 120, type: 'Premium' }
+    ]},
+    { id: 3, name: 'Laminated Safety Glass', category: 'laminated', thickness: 10, process: 'PVB Laminated', application: 'Railing / Balcony Safety', price: 215, priceUnit: 'sqft', color: 'Clear', certification: 'IS 13830', supplier: 'Verified Factory', minOrder: '20 sqm', tags: ['laminated', 'safety', 'balcony', 'railing'], vendors: [
+        { name: 'BondedGlass Industries', price: 215, time: '5 Days', rating: 4.6, reviews: 180, type: 'Factory' },
+        { name: 'BulkGlass India', price: 195, time: '10 Days', rating: 4.0, reviews: 67, type: 'Distributor' },
+        { name: 'PrimeLaminate+', price: 240, time: '3 Days', rating: 4.9, reviews: 93, type: 'Specialist' }
+    ]},
+    { id: 4, name: 'Insulated Glass Unit (IGU/DGU)', category: 'idu', thickness: 24, process: 'Double Glazed', application: 'Facade / Curtain Wall', price: 425, priceUnit: 'sqft', color: 'Clear', certification: 'IS 1626', supplier: 'Verified Factory', minOrder: '10 sqm', tags: ['IGU', 'DGU', 'facade', 'energy', 'thermal'], vendors: [
+        { name: 'ThermalWrap Facades', price: 425, time: '7 Days', rating: 4.5, reviews: 54, type: 'Factory' },
+        { name: 'EcoShield Solutions', price: 410, time: '12 Days', rating: 4.3, reviews: 31, type: 'OEM' },
+        { name: 'VelocityGlaze', price: 460, time: '4 Days', rating: 4.8, reviews: 88, type: 'Fast-Track' }
+    ]},
 ];
 
 const state = {
@@ -122,7 +134,10 @@ function createProductCard(product) {
             <!-- Dense Informative Content -->
             <div class="product-info" style="padding: 1.5rem; flex: 1; display: flex; flex-direction: column;">
                 <h3 class="product-title" style="font-size: 1.35rem; font-weight: 700; color: var(--accent-dark); margin-bottom: 0.25rem; line-height: 1.3;">${product.name}</h3>
-                <div class="product-supplier" style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 1.5rem;"><i data-lucide="factory" style="width:14px; display:inline;"></i> Mfg: <strong style="color:var(--text-main);">${product.supplier || 'Verified Factory'}</strong></div>
+                <div class="product-supplier" style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 1.5rem; display:flex; align-items:center; justify-content:space-between;">
+                    <span><i data-lucide="factory" style="width:14px; display:inline;"></i> Mfg: <strong style="color:var(--text-main);">${product.supplier || 'Verified Factory'}</strong></span>
+                    ${product.vendors ? `<span style="color:#0d9488; font-weight:700; font-size:0.8rem; background:rgba(20,184,166,0.1); padding:0.2rem 0.5rem; border-radius:4px; border:1px solid rgba(20,184,166,0.2);"><i data-lucide="users" style="width:12px; display:inline; margin-right:2px;"></i> ${product.vendors.length} Vendors</span>` : ''}
+                </div>
                 
                 <!-- 2x2 Specs Grid -->
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-bottom: 1.5rem; background: var(--bg-alt); padding: 1.25rem; border-radius: var(--radius-sm); border: 1px solid var(--border-light);">
@@ -160,16 +175,19 @@ function openVendorCompare(productId) {
     const product = source.find(p => p.id == productId);
     if (!product) return;
     
-    // Create mock vendors based on base price
-    const basePrice = Number(product.price) || 150;
-    const vendors = [
-        { name: product.supplier || 'Premium Glass Consortium', price: basePrice, time: '3-4 Days', rating: 4.8, reviews: 124, type: 'Factory Direct', badge: 'Best Value' },
-        { name: 'Apex Regional Glass', price: Math.round(basePrice * 0.95), time: '5-7 Days', rating: 4.5, reviews: 89, type: 'Wholesaler', badge: '' },
-        { name: 'Express Structural Solutions', price: Math.round(basePrice * 1.08), time: '1-2 Days', rating: 4.9, reviews: 210, type: 'Premium Supplier', badge: 'Fastest Delivery' }
-    ];
+    // Use structured data if available, otherwise generate mock
+    let vendors = product.vendors;
+    if (!vendors) {
+        const basePrice = Number(product.price) || 150;
+        vendors = [
+            { name: product.supplier || 'Premium Glass Consortium', price: basePrice, time: '3-4 Days', rating: 4.8, reviews: 124, type: 'Factory Direct', badge: 'Best Value' },
+            { name: 'Apex Regional Glass', price: Math.round(basePrice * 0.95), time: '5-7 Days', rating: 4.5, reviews: 89, type: 'Wholesaler', badge: '' },
+            { name: 'Express Structural Solutions', price: Math.round(basePrice * 1.08), time: '1-2 Days', rating: 4.9, reviews: 210, type: 'Premium Supplier', badge: 'Fastest Delivery' }
+        ];
+    }
     
     // Sort by price ascending
-    vendors.sort((a,b) => a.price - b.price);
+    const sortedVendors = [...vendors].sort((a,b) => a.price - b.price);
 
     // Build modal
     let modalHTML = `
@@ -179,36 +197,48 @@ function openVendorCompare(productId) {
             
             <div style="padding: 1.5rem 2rem; border-bottom: 1px solid var(--border-light); display:flex; justify-content:space-between; align-items:center; background: var(--bg-alt); border-radius: var(--radius-lg) var(--radius-lg) 0 0;">
                 <div>
-                    <h2 style="font-size: 1.5rem; color: var(--accent-dark); margin-bottom: 0.25rem;"><i data-lucide="git-compare" style="width:20px; display:inline; vertical-align:middle; margin-right:8px;"></i> Compare Vendors</h2>
+                    <h2 style="font-size: 1.5rem; color: var(--accent-dark); margin-bottom: 0.25rem;"><i data-lucide="git-compare" style="width:20px; display:inline; vertical-align:middle; margin-right:8px;"></i> Compare Vendor Offers</h2>
                     <p style="color: var(--text-muted); font-size: 0.95rem;">${product.name} ${product.thickness ? ' ('+product.thickness+'mm)' : ''}</p>
                 </div>
                 <button onclick="closeVendorCompare()" style="background:transparent; border:none; cursor:pointer; color:var(--text-muted); padding:0.5rem; display:flex; align-items:center; justify-content:center;"><i data-lucide="x" style="width:24px; height:24px;"></i></button>
             </div>
             
             <div style="padding: 2rem; overflow-y:auto; display:flex; flex-direction:column; gap:1rem;">
-                ${vendors.map(v => `
-                <div style="display:flex; border:1px solid var(--border-light); border-radius:var(--radius-md); padding:1.5rem; background:white; position:relative; gap:1.5rem; align-items:center; transition: transform 0.2s; box-shadow:var(--shadow-sm);">
-                    ${v.badge ? `<div style="position:absolute; top:-0.75rem; left:1.5rem; background:${v.badge==='Fastest Delivery'?'#f59e0b':'#10b981'}; color:white; font-size:0.7rem; font-weight:700; text-transform:uppercase; letter-spacing:0.05em; padding:0.25rem 0.75rem; border-radius:var(--radius-pill); box-shadow:0 2px 4px rgba(0,0,0,0.1);">${v.badge}</div>` : ''}
+                ${sortedVendors.map(v => {
+                    const isBestPrice = v.price === sortedVendors[0].price;
+                    const badge = v.badge || (isBestPrice ? 'Lowest Price' : '');
+                    const badgeColor = badge === 'Fastest Delivery' ? '#f59e0b' : (badge === 'Lowest Price' ? '#0d9488' : '#14b8a6');
                     
-                    <div style="flex:1;">
-                        <h4 style="font-size: 1.25rem; font-weight:700; color:var(--accent-dark); margin-bottom:0.25rem;">${v.name} <span style="font-size:0.75rem; font-weight:600; color:var(--text-muted); background:var(--bg-alt); padding:0.2rem 0.5rem; border-radius:4px; margin-left:0.5rem; border:1px solid var(--border-light); vertical-align:middle;">${v.type}</span></h4>
-                        <div style="display:flex; align-items:center; gap:1.5rem; margin-top:0.75rem;">
-                            <div style="display:flex; align-items:center; gap:0.25rem; color:#eab308; font-size:0.95rem; font-weight:700;">
-                                <i data-lucide="star" style="width:16px; fill:#eab308;"></i> ${v.rating} <span style="color:var(--text-muted); font-weight:500; font-size:0.85rem;">(${v.reviews})</span>
-                            </div>
-                            <div style="display:flex; align-items:center; gap:0.4rem; color:var(--text-muted); font-size:0.9rem;">
-                                <i data-lucide="truck" style="width:16px;"></i> Dispatch: <span style="font-weight:600; color:var(--text-main);">${v.time}</span>
+                    return `
+                    <div style="display:flex; border:1px solid var(--border-light); border-radius:var(--radius-md); padding:1.5rem; background:white; position:relative; gap:1.5rem; align-items:center; transition: transform 0.2s; box-shadow:var(--shadow-sm);">
+                        ${badge ? `<div style="position:absolute; top:-0.75rem; left:1.5rem; background:${badgeColor}; color:white; font-size:0.75rem; font-weight:800; text-transform:uppercase; letter-spacing:0.05em; padding:0.25rem 0.85rem; border-radius:var(--radius-pill); box-shadow:0 2px 8px rgba(0,0,0,0.1); z-index:1;">${badge}</div>` : ''}
+                        
+                        <div style="flex:1;">
+                            <h4 style="font-size: 1.25rem; font-weight:700; color:var(--accent-dark); margin-bottom:0.25rem;">${v.name} <span style="font-size:0.7rem; font-weight:800; color:var(--text-muted); background:var(--bg-alt); padding:0.2rem 0.6rem; border-radius:var(--radius-pill); margin-left:0.5rem; border:1px solid var(--border-light); vertical-align:middle; text-transform:uppercase;">${v.type}</span></h4>
+                            <div style="display:flex; align-items:center; gap:1.5rem; margin-top:0.75rem;">
+                                <div style="display:flex; align-items:center; gap:0.25rem; color:#eab308; font-size:0.95rem; font-weight:700;">
+                                    <i data-lucide="star" style="width:16px; fill:#eab308;"></i> ${v.rating} <span style="color:var(--text-muted); font-weight:500; font-size:0.85rem;">(${v.reviews || 0})</span>
+                                </div>
+                                <div style="display:flex; align-items:center; gap:0.4rem; color:var(--text-muted); font-size:0.9rem;">
+                                    <i data-lucide="truck" style="width:16px;"></i> Delivery: <span style="font-weight:700; color:var(--accent-dark);">${v.time}</span>
+                                </div>
+                                <div style="display:flex; align-items:center; gap:0.4rem; color:var(--text-muted); font-size:0.9rem;">
+                                    <i data-lucide="package" style="width:16px;"></i> Capacity: <span style="font-weight:700; color:var(--accent-dark);">Verified</span>
+                                </div>
                             </div>
                         </div>
+                        
+                        <div style="text-align:right; border-left:2px dashed var(--border-light); padding-left:2rem; display:flex; flex-direction:column; justify-content:center; min-width:160px;">
+                            <div style="font-size:1.85rem; font-weight:900; color:var(--accent-dark); line-height:1; letter-spacing:-0.02em;">₹${v.price.toLocaleString('en-IN')}</div>
+                            <div style="font-size:0.85rem; color:var(--text-muted); margin-bottom:1.25rem; font-weight:500;">per ${product.priceUnit||'sqft'}</div>
+                            <button class="btn btn-primary" style="padding:0.75rem 1.5rem; font-size:0.95rem; font-weight:700; border-radius:var(--radius-sm); box-shadow: 0 4px 12px rgba(13,148,136,0.2);" onclick="addSpecificVendorToCart('${product.id}', ${v.price}, '${v.name}'); closeVendorCompare();">Select Offer</button>
+                        </div>
                     </div>
-                    
-                    <div style="text-align:right; border-left:1px solid var(--border-light); padding-left:1.5rem; display:flex; flex-direction:column; justify-content:center;">
-                        <div style="font-size:1.75rem; font-weight:800; color:var(--accent-dark); line-height:1;">₹${v.price.toLocaleString('en-IN')}</div>
-                        <div style="font-size:0.8rem; color:var(--text-muted); margin-bottom:1rem;">/${product.priceUnit||'sqm'}</div>
-                        <button class="btn btn-primary" style="padding:0.6rem 1.5rem; font-size:0.9rem; border-radius:var(--radius-sm);" onclick="addSpecificVendorToCart('${product.id}', ${v.price}, '${v.name}'); closeVendorCompare();">Select Vendor</button>
-                    </div>
-                </div>
-                `).join('')}
+                `}).join('')}
+            </div>
+            
+            <div style="padding: 1rem 2rem; border-top: 1px solid var(--border-light); background: var(--bg-alt); border-radius: 0 0 var(--radius-lg) var(--radius-lg); text-align:center;">
+                <p style="font-size:0.85rem; color:var(--text-muted); margin:0;"><i data-lucide="shield-check" style="width:14px; display:inline; vertical-align:middle; margin-right:4px;"></i> All listed vendors are verified under the AmalGus Quality Assurance Protocol.</p>
             </div>
         </div>
     </div>
@@ -849,7 +879,11 @@ function renderCart() {
             </div>
             <div class="cart-item-info" style="flex:1;">
                 <div class="cart-item-title" style="font-size:1.25rem; font-weight:700; color:var(--text-main); margin-bottom:0.25rem;">${item.name}</div>
-                <div class="cart-item-meta" style="font-size:0.95rem; color:var(--text-muted); display:flex; gap:0.5rem; align-items:center;"><span style="background:var(--bg-alt); padding:0.2rem 0.5rem; border-radius:4px; border:1px solid var(--border-light);">${item.category}</span> ${item.thickness ? '| '+item.thickness+'mm Base' : ''}</div>
+                <div class="cart-item-meta" style="font-size:0.95rem; color:var(--text-muted); display:flex; gap:0.5rem; align-items:center; flex-wrap:wrap;">
+                    <span style="background:var(--bg-alt); padding:0.2rem 0.5rem; border-radius:4px; border:1px solid var(--border-light); text-transform:uppercase; font-size:0.75rem; font-weight:700;">${item.category}</span> 
+                    ${item.thickness ? '<span style="color:var(--border-dark)">|</span> '+item.thickness : ''}
+                    ${item.supplier ? '<span style="color:var(--border-dark)">|</span> <span style="color:var(--accent-dark); font-weight:700;"><i data-lucide="factory" style="width:12px; display:inline; margin-right:2px;"></i> '+item.supplier+'</span>' : ''}
+                </div>
                 <div style="margin-top:1rem; display:flex; align-items:center; gap:1.5rem;">
                     <div class="cart-item-qty" style="display:flex; align-items:center; background:var(--bg-alt); padding:0.25rem; border-radius:var(--radius-md); border:1px solid var(--border-light);">
                         <button onclick="updateCartQty('${item.id}', -1)" style="width:32px; height:32px; background:white; border-radius:6px; box-shadow:var(--shadow-sm); font-size:1.2rem; font-weight:600; cursor:pointer; display:flex; align-items:center; justify-content:center;">-</button>
