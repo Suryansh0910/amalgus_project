@@ -506,31 +506,107 @@ function updateRatesCharts() {
     if(!document.getElementById('ratesChartMain')) return; 
     if(rsChart) rsChart.destroy();
     if(barChart) barChart.destroy();
-    
+
+    const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+
+    // Multi-series 7-day trend: 5 major glass types
     rsChart = new Chart(document.getElementById('ratesChartMain').getContext('2d'), {
         type: 'line',
         data: {
-            labels: ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'],
-            datasets: [{
-                label: 'Toughened 12mm Avg (₹)',
-                data: [135,135,138,142,140,141,144], 
-                borderColor: '#0f172a',
-                backgroundColor: 'rgba(15,23,42,0.05)',
-                fill: true, tension: 0.4, borderWidth: 2
-            }]
+            labels: days,
+            datasets: [
+                {
+                    label: 'Toughened 8mm (₹/sqft)',
+                    data: [132, 134, 138, 142, 140, 141, 144],
+                    borderColor: '#0f172a', backgroundColor: 'transparent',
+                    tension: 0.4, borderWidth: 2.5, pointRadius: 3
+                },
+                {
+                    label: 'Laminated 10mm (₹/sqft)',
+                    data: [210, 212, 218, 215, 220, 222, 225],
+                    borderColor: '#14b8a6', backgroundColor: 'transparent',
+                    tension: 0.4, borderWidth: 2.5, pointRadius: 3
+                },
+                {
+                    label: 'IGU/DGU (₹/sqft)',
+                    data: [400, 405, 410, 415, 418, 420, 425],
+                    borderColor: '#6366f1', backgroundColor: 'transparent',
+                    tension: 0.4, borderWidth: 2.5, pointRadius: 3
+                },
+                {
+                    label: 'Low-E Glass (₹/sqft)',
+                    data: [230, 235, 238, 242, 240, 245, 250],
+                    borderColor: '#f59e0b', backgroundColor: 'transparent',
+                    tension: 0.4, borderWidth: 2.5, pointRadius: 3
+                },
+                {
+                    label: 'Clear Float 5mm (₹/sqft)',
+                    data: [48, 50, 51, 52, 51, 53, 54],
+                    borderColor: '#94a3b8', backgroundColor: 'transparent',
+                    tension: 0.4, borderWidth: 1.5, pointRadius: 3,
+                    borderDash: [5, 4]
+                }
+            ]
         },
-        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: {display:false} }}
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            interaction: { mode: 'index', intersect: false },
+            plugins: {
+                legend: {
+                    display: true,
+                    position: 'bottom',
+                    labels: { boxWidth: 12, font: { size: 11 }, padding: 16 }
+                },
+                tooltip: { mode: 'index', intersect: false }
+            },
+            scales: {
+                y: { grid: { color: 'rgba(0,0,0,0.05)' }, ticks: { callback: v => '₹' + v } },
+                x: { grid: { display: false } }
+            }
+        }
     });
+
+    // Bar chart — all 8 glass category avg prices
     barChart = new Chart(document.getElementById('ratesBarChart').getContext('2d'), {
         type: 'bar',
         data: {
-            labels: ['Float', 'Tough', 'Lami', 'DGU'],
+            labels: ['Float 5mm', 'Toughened\n8mm', 'Frosted\n6mm', 'Reflective\n6mm', 'Back-Painted\n8mm', 'Laminated\n10mm', 'Low-E\n6mm', 'IGU/DGU'],
             datasets: [{
-                data: [65, 145, 230, 420],
-                backgroundColor: ['#e2e8f0', '#0f172a', '#334155', '#475569'], borderRadius: 4
+                label: 'Avg Price (₹/sqft)',
+                data: [52, 140, 97, 120, 185, 215, 250, 425],
+                backgroundColor: [
+                    '#94a3b8',   // Float — neutral
+                    '#0f172a',   // Toughened — dark navy
+                    '#8b5cf6',   // Frosted — purple
+                    '#06b6d4',   // Reflective — cyan
+                    '#f97316',   // Back-Painted — orange
+                    '#334155',   // Laminated — slate
+                    '#f59e0b',   // Low-E — amber
+                    '#14b8a6',   // IGU/DGU — teal
+                ],
+                borderRadius: 6,
+                borderSkipped: false
             }]
         },
-        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: {display:false} }}
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false },
+                tooltip: { callbacks: { label: ctx => ' ₹' + ctx.parsed.y + ' / sqft' } }
+            },
+            scales: {
+                y: {
+                    grid: { color: 'rgba(0,0,0,0.05)' },
+                    ticks: { callback: v => '₹' + v }
+                },
+                x: {
+                    grid: { display: false },
+                    ticks: { font: { size: 10 } }
+                }
+            }
+        }
     });
 }
 
